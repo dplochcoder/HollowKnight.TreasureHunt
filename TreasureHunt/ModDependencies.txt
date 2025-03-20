@@ -1,9 +1,9 @@
-PurenailCore
-RandomizerCore.Json
-RandomizerCore
-Randomizer 4
-ItemChanger
-RandoSettingsManager
-MenuChanger
 ConnectionMetadataInjector
+ItemChanger
 MagicUI
+MenuChanger
+PurenailCore
+RandomizerCore
+RandomizerCore.Json
+Randomizer 4
+RandoSettingsManager

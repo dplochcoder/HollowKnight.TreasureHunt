@@ -14,7 +14,7 @@ on:
       should_release:
         description: "Create release?"
         required: true
-        default: false
+        default: true
         type: boolean
 
 jobs:
@@ -29,7 +29,7 @@ jobs:
         uses: BadMagic100/setup-hk@v2
         with:
           apiPath: API
-          #dependencyFilePath: TreasureHunt/ModDependencies.txt
+          dependencyFilePath: TreasureHunt/ModDependencies.txt
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
