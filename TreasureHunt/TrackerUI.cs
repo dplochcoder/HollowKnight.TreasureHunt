@@ -72,7 +72,7 @@ internal class TrackerUI
             else displayStrings.Add("??? Unknown Location ???");
         }
         displayStrings.Sort();
-        displayStrings.Add($"Treasure Remaining: {remaining + placementIndices.Count}");
+        displayStrings.Add($"Treasure Remaining: {remaining}");
 
         for (int i = 0; i < targets.Count; i++) targets[i].Text = i < displayStrings.Count ? displayStrings[i] : "";
     }
