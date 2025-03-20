@@ -5,7 +5,9 @@ using MenuChanger.Attributes;
 using Newtonsoft.Json;
 using RandomizerCore.Extensions;
 using RandomizerMod.RC;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace TreasureHunt;
 
@@ -18,20 +20,34 @@ public class GlobalSettings
     public bool IsEnabled => RS.IsEnabled;
 }
 
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+internal class IgnoreHashAttribute : Attribute { };
+
 public class RandomizationSettings
 {
     [JsonIgnore]
+    [IgnoreHash]
     public bool IsEnabled => TrueEnding || Movement || Spells || MajorKeys;
 
     public bool TrueEnding;
     public bool Movement;
+    public bool SwimAndIsmas;
     public bool Spells;
     public bool MajorKeys;
 
     [MenuRange(2, 6)] public int NumReveals = 4;
     public bool RollingWindow = false;
 
-    public int GetStableHashCode() => $"TE:{TrueEnding},M:{Movement},S:{Spells},K:{MajorKeys},N:{NumReveals},W:{RollingWindow}".GetStableHashCode();
+    public int GetStableHashCode()
+    {
+        List<string> strs = [];
+        foreach (var field in typeof(RandomizationSettings).GetFields())
+        {
+            if (field.GetCustomAttribute<IgnoreHashAttribute>() != null) continue;
+            strs.Add(field.GetValue(this).ToString());
+        }
+        return string.Join(",", strs).GetStableHashCode();
+    }
 
     private static HashSet<string> TrueEndingItems = [
         ItemNames.Dream_Nail, ItemNames.Dream_Gate, ItemNames.Awoken_Dream_Nail,
@@ -44,6 +60,7 @@ public class RandomizationSettings
         ItemNames.Left_Crystal_Heart, ItemNames.Right_Crystal_Heart, ItemNames.Crystal_Heart,
         ItemNames.Monarch_Wings
     ];
+    private static HashSet<string> SwimItems = [ItemNames.Swim, $"Not_{ItemNames.Swim}", ItemNames.Ismas_Tear, $"Not_{ItemNames.Ismas_Tear}"];
     private static HashSet<string> SpellItems = [
         ItemNames.Vengeful_Spirit, ItemNames.Shade_Soul,
         ItemNames.Desolate_Dive, ItemNames.Descending_Dark,
@@ -62,6 +79,7 @@ public class RandomizationSettings
         ItemNames.Vengeful_Spirit, ItemNames.Shade_Soul,
         ItemNames.Howling_Wraiths, ItemNames.Abyss_Shriek,
         ItemNames.Dream_Nail, ItemNames.Dream_Gate, ItemNames.Awoken_Dream_Nail,
+        ItemNames.Swim, $"Not_{ItemNames.Swim}", ItemNames.Ismas_Tear, $"Not_{ItemNames.Ismas_Tear}",
         ItemNames.Lurien, ItemNames.Monomon, ItemNames.Herrah, ItemNames.Dreamer,
         ItemNames.Queen_Fragment, ItemNames.King_Fragment, ItemNames.Void_Heart
     ];
@@ -100,6 +118,7 @@ public class RandomizationSettings
         if (TrueEnding && TrueEndingItems.Contains(item.Name)) return true;
         if (Movement && MovementItems.Contains(item.Name)) return true;
         if (Spells && SpellItems.Contains(item.Name)) return true;
+        if (SwimAndIsmas && SwimItems.Contains(item.Name)) return true;
         if (MajorKeys && (MajorKeyItems.Contains(item.Name) || IsUniqueKey(item.Name, placedItems))) return true;
 
         return false;
