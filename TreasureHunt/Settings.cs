@@ -34,6 +34,8 @@ public class RandomizationSettings
     public bool SwimAndIsmas;
     public bool Spells;
     public bool MajorKeys;
+    public bool KeyLikeCharms;
+    public bool FragileCharms;
 
     [MenuRange(2, 6)] public int NumReveals = 4;
     public bool RollingWindow = false;
@@ -69,6 +71,12 @@ public class RandomizationSettings
     private static HashSet<string> MajorKeyItems = [
         ItemNames.Elevator_Pass, ItemNames.Elegant_Key, ItemNames.Love_Key, ItemNames.Tram_Pass, ItemNames.Kings_Brand
     ];
+    private static HashSet<string> KeyLikeCharmItems = [
+        ItemNames.Grimmchild1, ItemNames.Grimmchild2, ItemNames.Spore_Shroom, ItemNames.Defenders_Crest
+    ];
+    private static HashSet<string> FragileCharmItems = [
+        ItemNames.Fragile_Greed, ItemNames.Unbreakable_Greed, ItemNames.Fragile_Heart, ItemNames.Unbreakable_Heart, ItemNames.Fragile_Strength, ItemNames.Unbreakable_Strength
+    ];
 
     private static List<string> ItemPreferenceOrder = [
         ItemNames.Left_Mothwing_Cloak, ItemNames.Right_Mothwing_Cloak, ItemNames.Split_Shade_Cloak, ItemNames.Mothwing_Cloak, ItemNames.Shade_Cloak,
@@ -82,7 +90,9 @@ public class RandomizationSettings
         ItemNames.Swim, $"Not_{ItemNames.Swim}", ItemNames.Ismas_Tear, $"Not_{ItemNames.Ismas_Tear}",
         ItemNames.Lurien, ItemNames.Monomon, ItemNames.Herrah, ItemNames.Dreamer,
         ItemNames.Queen_Fragment, ItemNames.King_Fragment, ItemNames.Void_Heart,
-        ItemNames.Tram_Pass, ItemNames.Kings_Brand
+        ItemNames.Tram_Pass, ItemNames.Kings_Brand,
+        ItemNames.Grimmchild1, ItemNames.Grimmchild2, ItemNames.Spore_Shroom, ItemNames.Defenders_Crest,
+        ItemNames.Fragile_Greed, ItemNames.Unbreakable_Greed, ItemNames.Fragile_Heart, ItemNames.Unbreakable_Heart, ItemNames.Fragile_Strength, ItemNames.Unbreakable_Strength
     ];
 
     internal static int CompareItems(RandoModItem a, RandoModItem b)
@@ -121,6 +131,8 @@ public class RandomizationSettings
         if (Spells && SpellItems.Contains(item.Name)) return true;
         if (SwimAndIsmas && SwimItems.Contains(item.Name)) return true;
         if (MajorKeys && (MajorKeyItems.Contains(item.Name) || IsUniqueKey(item.Name, placedItems))) return true;
+        if (KeyLikeCharms && KeyLikeCharmItems.Contains(item.Name)) return true;
+        if (FragileCharms && FragileCharmItems.Contains(item.Name)) return true;
 
         return false;
     }
