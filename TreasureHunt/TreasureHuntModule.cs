@@ -52,7 +52,7 @@ internal class TreasureHuntModule : Module
             toShow.Add(placementIdx);
         }
 
-        ui?.Update(toShow, PlacementIndices.Count - RevealedTo);
+        ui?.Update(toShow, PlacementIndices.Count - AcquiredPlacements.Count);
     }
 
     private void OnRandoItemGive(int index, ReadOnlyGiveEventArgs args)
