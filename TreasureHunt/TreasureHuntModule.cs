@@ -40,11 +40,11 @@ internal class TreasureHuntModule : Module
         for (int i = 0; i < PlacementIndices.Count; i++)
         {
             var placementIdx = PlacementIndices[i];
-            if (toShow.Count == Settings.NumReveals) break;
+            if (toShow.Count == Settings.NumberOfReveals) break;
             if (i >= RevealedTo)
             {
                 if (Settings.RollingWindow) ++RevealedTo;
-                else if (toShow.Count == 0) RevealedTo = Math.Min(RevealedTo + Settings.NumReveals, PlacementIndices.Count);
+                else if (toShow.Count == 0) RevealedTo = Math.Min(RevealedTo + Settings.NumberOfReveals, PlacementIndices.Count);
                 else break;
             }
             if (AcquiredPlacements.Contains(placementIdx)) continue;

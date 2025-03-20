@@ -27,7 +27,7 @@ public class RandomizationSettings
 {
     [JsonIgnore]
     [IgnoreHash]
-    public bool IsEnabled => TrueEnding || Movement || Spells || MajorKeys;
+    public bool IsEnabled => TrueEnding || Movement || SwimAndIsmas || Spells || MajorKeys || KeyLikeCharms || FragileCharms;
 
     public bool TrueEnding;
     public bool Movement;
@@ -37,7 +37,7 @@ public class RandomizationSettings
     public bool KeyLikeCharms;
     public bool FragileCharms;
 
-    [MenuRange(2, 6)] public int NumReveals = 4;
+    [MenuRange(2, 6)] public int NumberOfReveals = 4;
     public bool RollingWindow = false;
 
     public int GetStableHashCode()
