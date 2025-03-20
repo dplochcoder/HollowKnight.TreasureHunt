@@ -37,7 +37,7 @@ internal class TrackerUI
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 7; i++)
         {
             TextObject target = new(layout, $"Target {i + 1}")
             {
@@ -54,7 +54,7 @@ internal class TrackerUI
 
     private static string Clean(string name) => name.Replace("_", " ").Replace("-", " ");
 
-    internal void Update(List<int> placementIndices)
+    internal void Update(List<int> placementIndices, int remaining)
     {
         Dictionary<int, string> strings = [];
         foreach (var p in ItemChanger.Internal.Ref.Settings.GetPlacements())
@@ -72,6 +72,7 @@ internal class TrackerUI
             else displayStrings.Add("??? Unknown Location ???");
         }
         displayStrings.Sort();
+        displayStrings.Add($"Treasure Remaining: {remaining + placementIndices.Count}");
 
         for (int i = 0; i < targets.Count; i++) targets[i].Text = i < displayStrings.Count ? displayStrings[i] : "";
     }
