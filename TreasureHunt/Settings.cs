@@ -67,7 +67,7 @@ public class RandomizationSettings
         ItemNames.Howling_Wraiths, ItemNames.Abyss_Shriek
     ];
     private static HashSet<string> MajorKeyItems = [
-        ItemNames.Elevator_Pass, ItemNames.Elegant_Key, ItemNames.Love_Key, ItemNames.Tram_Pass
+        ItemNames.Elevator_Pass, ItemNames.Elegant_Key, ItemNames.Love_Key, ItemNames.Tram_Pass, ItemNames.Kings_Brand
     ];
 
     private static List<string> ItemPreferenceOrder = [
@@ -81,7 +81,8 @@ public class RandomizationSettings
         ItemNames.Dream_Nail, ItemNames.Dream_Gate, ItemNames.Awoken_Dream_Nail,
         ItemNames.Swim, $"Not_{ItemNames.Swim}", ItemNames.Ismas_Tear, $"Not_{ItemNames.Ismas_Tear}",
         ItemNames.Lurien, ItemNames.Monomon, ItemNames.Herrah, ItemNames.Dreamer,
-        ItemNames.Queen_Fragment, ItemNames.King_Fragment, ItemNames.Void_Heart
+        ItemNames.Queen_Fragment, ItemNames.King_Fragment, ItemNames.Void_Heart,
+        ItemNames.Tram_Pass, ItemNames.Kings_Brand
     ];
 
     internal static int CompareItems(RandoModItem a, RandoModItem b)
