@@ -1,0 +1,3 @@
+﻿# TreasureHunt
+
+Semi-spoiler format
