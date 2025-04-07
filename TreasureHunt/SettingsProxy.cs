@@ -14,7 +14,7 @@ internal class SettingsProxy : RandoSettingsProxy<RandomizationSettings, string>
     public override bool TryProvideSettings(out RandomizationSettings? settings)
     {
         settings = TreasureHuntMod.GS.RS;
-        return settings.IsEnabled;
+        return settings.Enabled;
     }
 
     public override void ReceiveSettings(RandomizationSettings? settings) => ConnectionMenu.Instance!.ApplySettings(settings ?? new());

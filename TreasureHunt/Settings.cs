@@ -7,7 +7,7 @@ using RandomizerCore.Extensions;
 using RandomizerMod.RC;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 
 namespace TreasureHunt;
 
@@ -17,37 +17,30 @@ public class GlobalSettings
     public RandomizationSettings RS = new();
 
     [JsonIgnore]
-    public bool IsEnabled => RS.IsEnabled;
+    public bool IsEnabled => RS.Enabled;
 }
 
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-internal class IgnoreHashAttribute : Attribute { };
+[AttributeUsage(AttributeTargets.Field)]
+internal class PoolFieldAttribute : Attribute { }
 
 public class RandomizationSettings
 {
-    [JsonIgnore]
-    [IgnoreHash]
-    public bool IsEnabled => TrueEnding || Movement || SwimAndIsmas || Spells || MajorKeys || KeyLikeCharms || FragileCharms;
+    public bool Enabled;
 
-    public bool TrueEnding;
-    public bool Movement;
-    public bool SwimAndIsmas;
-    public bool Spells;
-    public bool MajorKeys;
-    public bool KeyLikeCharms;
-    public bool FragileCharms;
+    [PoolField] public bool TrueEnding;
+    [PoolField] public bool Movement;
+    [PoolField] public bool SwimAndIsmas;
+    [PoolField] public bool Spells;
+    [PoolField] public bool MajorKeys;
+    [PoolField] public bool KeyLikeCharms;
+    [PoolField] public bool FragileCharms;
 
     [MenuRange(2, 6)] public int NumberOfReveals = 4;
     public bool RollingWindow = false;
 
     public int GetStableHashCode()
     {
-        List<string> strs = [];
-        foreach (var field in typeof(RandomizationSettings).GetFields())
-        {
-            if (field.GetCustomAttribute<IgnoreHashAttribute>() != null) continue;
-            strs.Add(field.GetValue(this).ToString());
-        }
+        var strs = typeof(RandomizationSettings).GetFields().OrderBy(f => f.Name).Select(f => f.GetValue(this).ToString()).ToList();
         return string.Join(",", strs).GetStableHashCode();
     }
 
