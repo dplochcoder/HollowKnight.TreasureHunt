@@ -95,20 +95,17 @@ public class RandomizationSettings
         ItemNames.Fragile_Greed, ItemNames.Unbreakable_Greed, ItemNames.Fragile_Heart, ItemNames.Unbreakable_Heart, ItemNames.Fragile_Strength, ItemNames.Unbreakable_Strength
     ];
 
-    internal static int CompareItems(RandoModItem a, RandoModItem b)
+    internal static int CompareItemNames(string a, string b)
     {
-        if (a.Sphere != b.Sphere) return a.Sphere - b.Sphere;
-        else if (a.Name != b.Name)
-        {
-            int idxA = ItemPreferenceOrder.IndexOf(a.Name);
-            int idxB = ItemPreferenceOrder.IndexOf(b.Name);
+        if (a == b) return 0;
 
-            if (idxA == -1 && idxB == -1) return a.Name.CompareTo(b.Name);
-            else if (idxA == -1) return 1;
-            else if (idxB == -1) return -1;
-            else return idxA - idxB;
-        }
-        else return 0;
+        int idxA = ItemPreferenceOrder.IndexOf(a);
+        int idxB = ItemPreferenceOrder.IndexOf(b);
+
+        if (idxA == -1 && idxB == -1) return a.CompareTo(b);
+        else if (idxA == -1) return 1;
+        else if (idxB == -1) return -1;
+        else return idxA - idxB;
     }
 
     private static bool IsUniqueKey(string name, IReadOnlyDictionary<string, AbstractItem> placedItems)

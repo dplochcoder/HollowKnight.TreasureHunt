@@ -45,7 +45,7 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
 
         var mod = ItemChanger.ItemChangerMod.Modules.GetOrAdd<TreasureHuntModule>();
         mod.Settings = GS.RS.Clone();
-        mod.Start(rc.ctx!.itemPlacements);
+        mod.Start(rc.ctx!);
     }
 
     private int OnCalculateHash(RandoController rc, int orig)

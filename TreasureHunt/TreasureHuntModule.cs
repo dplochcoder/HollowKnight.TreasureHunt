@@ -1,9 +1,11 @@
 ﻿using ItemChanger;
 using ItemChanger.Modules;
+using RandomizerCore.Logic;
 using RandomizerMod.IC;
 using RandomizerMod.RC;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TreasureHunt;
 
@@ -71,12 +73,63 @@ internal class TreasureHuntModule : Module
         ui = null;
     }
 
-    internal void Start(List<ItemPlacement> placements)
+    // Maps placement index -> progression sphere
+    internal static Dictionary<int, int> CalculateProgressionSpheres(RandoModContext ctx)
+    {
+        LogicManager lm = new(new(ctx.LM));
+        ProgressionManager pm = new(lm, ctx);
+        var mu = pm.mu;
+
+        mu.AddWaypoints(lm.Waypoints);
+        mu.AddTransitions(lm.TransitionLookup.Values);
+        mu.AddPlacements(ctx.Vanilla);
+        if (ctx.transitionPlacements is not null) mu.AddEntries(ctx.transitionPlacements.Select(t => new PrePlacedItemUpdateEntry(t)));
+
+        mu.StartUpdating();
+        mu.SetLongTermRevertPoint();
+
+        int sphere = 0;
+        List<ItemPlacement> unclaimed = ctx.itemPlacements;
+        Dictionary<int, int> spheres = [];
+
+        while (unclaimed.Count > 0)
+        {
+            List<ItemPlacement> reachable = [];
+            List<ItemPlacement> newUnclaimed = [];
+            foreach (var placement in unclaimed)
+            {
+                if (placement.Location.CanGet(pm)) reachable.Add(placement);
+                else newUnclaimed.Add(placement);
+            }
+            if (reachable.Count == 0) throw new ArgumentException("Seed is not completable");
+
+            foreach (var placement in reachable)
+            {
+                pm.Add(placement.Item, placement.Location);
+                spheres[placement.Index] = sphere;
+            }
+
+            unclaimed = newUnclaimed;
+            sphere++;
+        }
+
+        return spheres;
+    }
+
+    private static int CompareItems(string name1, int sphere1, string name2, int sphere2)
+    {
+        if (sphere1 != sphere2) return sphere1.CompareTo(sphere2);
+        else return RandomizationSettings.CompareItemNames(name1, name2);
+    }
+
+    internal void Start(RandoModContext ctx)
     {
         Dictionary<string, AbstractItem> placedItems = [];
         foreach (var item in ItemChanger.Internal.Ref.Settings.GetItems()) placedItems[item.name] = item;
 
-        foreach (var placement in placements)
+        var spheres = CalculateProgressionSpheres(ctx);
+
+        foreach (var placement in ctx.itemPlacements)
         {
             if (placement.Location.Name == LocationNames.Start) continue;
             if (!Settings.IsTrackedItem(placement.Item, placedItems)) continue;
@@ -84,7 +137,7 @@ internal class TreasureHuntModule : Module
             PlacementIndices.Add(placement.Index);
         }
 
-        PlacementIndices.Sort((a, b) => RandomizationSettings.CompareItems(placements[a].Item, placements[b].Item));
+        PlacementIndices.Sort((a, b) => CompareItems(ctx.itemPlacements[a].Item.Name, spheres[a], ctx.itemPlacements[b].Item.Name, spheres[b]));
         UpdateRevealed();
     }
 }
