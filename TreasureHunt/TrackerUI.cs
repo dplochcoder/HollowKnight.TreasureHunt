@@ -1,6 +1,8 @@
-﻿using MagicUI.Core;
+﻿using ItemChanger;
+using MagicUI.Core;
 using MagicUI.Elements;
 using RandomizerMod.IC;
+using System;
 using System.Collections.Generic;
 
 namespace TreasureHunt;
@@ -9,6 +11,7 @@ internal class TrackerUI
 {
     private LayoutRoot layout;
     private List<TextObject> targets = [];
+    private List<(AbstractPlacement, Action<VisitStateChangedEventArgs>)> listeners = [];
 
     internal TrackerUI()
     {
@@ -52,26 +55,59 @@ internal class TrackerUI
         bigStack.Children.Add(smallStack);
     }
 
+    private static Cost? GetCost(AbstractPlacement placement, int id)
+    {
+        foreach (var item in placement.Items)
+        {
+            var randoTag = item.GetTag<RandoItemTag>();
+            if (randoTag == null || randoTag.id != id) continue;
+
+            return item.GetTag<CostTag>()?.Cost;
+        }
+
+        return null;
+    }
+
     private static string Clean(string name) => name.Replace("_", " ").Replace("-", " ");
 
-    internal void Update(List<int> placementIndices, int remaining)
+    internal void Update(List<int> placementIndices, int remaining, Dictionary<int, VisitState>? visitOverrides = null)
     {
-        placementIndices = [.. placementIndices];
-        placementIndices.Sort();
+        listeners.ForEach(pair =>
+        {
+            var (p, a) = pair;
+            p.OnVisitStateChanged -= a;
+        });
+        listeners.Clear();
 
-        Dictionary<int, string> strings = [];
+        Dictionary<int, AbstractPlacement> placements = [];
         foreach (var p in ItemChanger.Internal.Ref.Settings.GetPlacements())
         {
             var tag = p.GetTag<RandoPlacementTag>();
             if (tag == null) continue;
 
-            foreach (var id in tag.ids) strings[id] = Clean(p.Name);
+            foreach (var id in tag.ids) placements[id] = p;
         }
 
         List<string> displayStrings = [];
         foreach (var idx in placementIndices)
         {
-            if (strings.TryGetValue(idx, out string name)) displayStrings.Add(name);
+            if (placements.TryGetValue(idx, out var placement))
+            {
+                var idxCopy = idx;
+                Action<VisitStateChangedEventArgs> action = args => Update(placementIndices, remaining, new() { [idx] = args.NewFlags });
+                listeners.Add((placement, action));
+                placement.OnVisitStateChanged += action;
+
+                string costTxt = "";
+                if (visitOverrides == null || !visitOverrides.TryGetValue(idx, out var visitState)) visitState = placement.Visited;
+                if ((visitState & VisitState.Previewed) == VisitState.Previewed)
+                {
+                    var cost = GetCost(placement, idx);
+                    if (cost != null) costTxt = $" ({cost.GetCostText()})";
+                }
+
+                displayStrings.Add($"{Clean(placement.Name)}{costTxt}");
+            }
             else displayStrings.Add("??? Unknown Location ???");
         }
         displayStrings.Add($"Treasure Remaining: {remaining}");
