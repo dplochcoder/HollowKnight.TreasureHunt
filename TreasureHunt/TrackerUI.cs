@@ -56,6 +56,9 @@ internal class TrackerUI
 
     internal void Update(List<int> placementIndices, int remaining)
     {
+        placementIndices = [.. placementIndices];
+        placementIndices.Sort();
+
         Dictionary<int, string> strings = [];
         foreach (var p in ItemChanger.Internal.Ref.Settings.GetPlacements())
         {
@@ -71,7 +74,6 @@ internal class TrackerUI
             if (strings.TryGetValue(idx, out string name)) displayStrings.Add(name);
             else displayStrings.Add("??? Unknown Location ???");
         }
-        displayStrings.Sort();
         displayStrings.Add($"Treasure Remaining: {remaining}");
 
         for (int i = 0; i < targets.Count; i++) targets[i].Text = i < displayStrings.Count ? displayStrings[i] : "";
