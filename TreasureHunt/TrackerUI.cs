@@ -98,12 +98,15 @@ internal class TrackerUI
                 listeners.Add((placement, action));
                 placement.OnVisitStateChanged += action;
 
+                var cost = GetCost(placement, idx);
                 string costTxt = "";
-                if (visitOverrides == null || !visitOverrides.TryGetValue(idx, out var visitState)) visitState = placement.Visited;
-                if ((visitState & VisitState.Previewed) == VisitState.Previewed)
+                if (cost != null)
                 {
-                    var cost = GetCost(placement, idx);
-                    if (cost != null) costTxt = $" ({cost.GetCostText()})";
+                    if (visitOverrides == null || !visitOverrides.TryGetValue(idx, out var visitState)) visitState = placement.Visited;
+                    var previewed = (visitState & VisitState.Previewed) == VisitState.Previewed;
+
+                    var innerTxt = previewed ? cost.GetCostText() : "???";
+                    costTxt = $" ({innerTxt})";
                 }
 
                 displayStrings.Add($"{Clean(placement.Name)}{costTxt}");
