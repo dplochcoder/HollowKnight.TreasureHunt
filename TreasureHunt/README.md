@@ -44,8 +44,11 @@ If all conditions are met, the ritual will divine a _singular_ unobtained item w
 On ritual success, the player is _cursed_ in the following ways until all of the divined items are obtained:
 
 -   Curse of weakness: The player takes +1 damage on all hits, before multipliers.
+-   Curse of mortality: The player slowly loses soul at all times.
 -   Curse of regret: The player's shade is sealed away in the altar and cannot be killed until the curse is lifted, or the player creates another Shade. The player does however keep their geo (minus offering) after sacrificing.
 -   Curse of obsession: Obtaining any checks other than the divined ones inflicts 2 base damage (3 due to the curse of weakness, 6 if overcharmed).
 -   Curse of the damned: The player may be periodically haunted by otherworldly foes.
 
-Upon obtaining the divined items, all curses are lifted, and the Shade is returned to just above the altar. The player can perform multiple rituals if necessary, but the costs increase with each new ritual and the player must wait at least 5 minutes between rituals.
+Upon obtaining the divined items, all curses are lifted, and the Shade is returned to just above the altar.
+
+The player can perform multiple rituals if necessary, but the required offering grows larger, and the curses stronger, with each sequential ritual. The player must also wait at least 5 minutes between rituals.
