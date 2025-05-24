@@ -23,6 +23,9 @@ public class GlobalSettings
 [AttributeUsage(AttributeTargets.Field)]
 internal class PoolFieldAttribute : Attribute { }
 
+[AttributeUsage(AttributeTargets.Field)]
+internal class AltarFieldAttribute : Attribute { }
+
 public class RandomizationSettings
 {
     public bool Enabled;
@@ -37,6 +40,10 @@ public class RandomizationSettings
 
     [MenuRange(2, 6)] public int NumberOfReveals = 4;
     public bool RollingWindow = false;
+
+    public bool AltarOfDivination = false;
+    [AltarField] public bool CurseOfWeakness = true;
+    [AltarField] public bool CurseOfTheDamned = true;
 
     public int GetStableHashCode()
     {

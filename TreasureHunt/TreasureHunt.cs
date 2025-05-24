@@ -1,6 +1,9 @@
+using ItemChanger;
 using ItemChanger.Internal.Menu;
 using Modding;
 using RandomizerMod.RC;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace TreasureHunt;
 
@@ -19,13 +22,17 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
 
     private static void HookRandoSettingsManager() => SettingsProxy.Setup();
 
-    public override void Initialize()
+    private static void HookDebugInterop() => DebugInterop.Setup();
+
+    public override List<(string, string)> GetPreloadNames() => Preloader.Instance.GetPreloadNames();
+
+    public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
+        Preloader.Instance.Initialize(preloadedObjects);
+
         ConnectionMenu.Setup();
-        if (ModHooks.GetMod("RandoSettingsManager") is Mod)
-        {
-            HookRandoSettingsManager();
-        }
+        if (ModHooks.GetMod("RandoSettingsManager") is Mod) HookRandoSettingsManager();
+        if (ModHooks.GetMod("DebugMod") is Mod) HookDebugInterop();
 
         RandoController.OnExportCompleted += OnExportCompleted;
         RandoController.OnCalculateHash += OnCalculateHash;

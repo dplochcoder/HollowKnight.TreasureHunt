@@ -43,6 +43,11 @@
     <WriteLinesToFile File="$(ExportDir)/VERSION.txt" Lines="@(VersionNumber)" Overwrite="true" Encoding="UTF-8" />
   </Target>
   <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include="LocalOverrides.targets" />
+    <EmbeddedResource Include="Resources\**\*.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(HollowKnightRefs)/Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -51,6 +56,9 @@
     </Reference>
     <Reference Include="ConnectionMetadataInjector">
       <HintPath>$(HollowKnightRefs)/Mods/ConnectionMetadataInjector/ConnectionMetadataInjector.dll</HintPath>
+    </Reference>
+    <Reference Include="DebugMod">
+      <HintPath>$(HollowKnightRefs)/Mods/DebugMod/DebugMod.dll</HintPath>
     </Reference>
     <Reference Include="GalaxyCSharp">
       <HintPath>$(HollowKnightRefs)/GalaxyCSharp.dll</HintPath>
@@ -340,9 +348,5 @@
     <Reference Include="UnityEngine.XRModule">
       <HintPath>$(HollowKnightRefs)/UnityEngine.XRModule.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".gitignore" />
-    <None Include="LocalOverrides.targets" />
   </ItemGroup>
 </Project>
