@@ -257,6 +257,7 @@ internal class CurseEffects : MonoBehaviour
         SceneNames.Fungus2_26,  // Leg Eater
         SceneNames.Fungus2_34,  // Willoh
         SceneNames.Fungus3_archive,  // Archives Bench
+        SceneNames.Fungus3_39,  // Traitor's Grave
         SceneNames.Fungus3_50,  // Queen's Gardens Toll
         SceneNames.Grimm_Divine,
         SceneNames.Mines_18,  // CG1 Bench
