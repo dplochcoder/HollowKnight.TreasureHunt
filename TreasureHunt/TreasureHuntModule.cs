@@ -1,5 +1,8 @@
 ﻿using ItemChanger;
+using ItemChanger.Items;
 using ItemChanger.Modules;
+using ItemChanger.Placements;
+using ItemChanger.Tags;
 using Modding;
 using RandomizerCore.Logic;
 using RandomizerMod.IC;
@@ -210,6 +213,16 @@ internal class TreasureHuntModule : Module
         return r.Next(max - min + 1) + min;
     }
 
+    private bool CurseOfObsession(ReadOnlyGiveEventArgs args)
+    {
+        if (!Settings.CurseOfObsession) return false;
+        if (args.Placement is ShopPlacement) return false;
+        if (args.Item.GetTag<PersistentItemTag>() is PersistentItemTag tag && tag.Persistence != Persistence.Single) return false;
+        if (args.Item is GrubItem || args.Item is MimicItem || args.Item is SpawnLumafliesItem) return false;
+
+        return true;
+    }
+
     internal void UpdateDisplayData()
     {
         ui?.Update(GetDisplayData());
@@ -233,7 +246,7 @@ internal class TreasureHuntModule : Module
             UpdateDisplayData();
             return;
         }
-        else if (CursedIndices.Count > 0) AltarOfDivination.QueueDirectDamage(2);
+        else if (CursedIndices.Count > 0 && CurseOfObsession(args)) AltarOfDivination.QueueDirectDamage(2);
 
         if (!PlacementIndices.Contains(index) || !AcquiredPlacements.Add(index)) return;
         UpdateDisplayData();

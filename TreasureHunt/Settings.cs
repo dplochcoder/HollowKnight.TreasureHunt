@@ -24,6 +24,9 @@ public class GlobalSettings
 internal class PoolFieldAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Field)]
+internal class ControlsFieldAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Field)]
 internal class AltarFieldAttribute : Attribute { }
 
 public class RandomizationSettings
@@ -38,12 +41,13 @@ public class RandomizationSettings
     [PoolField] public bool KeyLikeCharms;
     [PoolField] public bool FragileCharms;
 
-    [MenuRange(2, 6)] public int NumberOfReveals = 4;
-    public bool RollingWindow = false;
+    [ControlsField] [MenuRange(2, 6)] public int NumberOfReveals = 4;
+    [ControlsField] public bool RollingWindow = false;
 
     public bool AltarOfDivination = false;
     [AltarField] public bool CurseOfWeakness = true;
-    [AltarField] public bool CurseOfTheDamned = true;
+    [AltarField] public bool CurseOfObsession = true;
+    [AltarField] public bool CurseOfTheDamned = false;
 
     public int GetStableHashCode()
     {

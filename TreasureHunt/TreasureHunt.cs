@@ -1,4 +1,3 @@
-using ItemChanger;
 using ItemChanger.Internal.Menu;
 using Modding;
 using RandomizerMod.RC;

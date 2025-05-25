@@ -1,12 +1,11 @@
-﻿using ItemChanger.Deployers;
-using MenuChanger;
+﻿using MenuChanger;
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
 using RandomizerMod.Menu;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Reflection;
 using UnityEngine;
 
@@ -35,6 +34,11 @@ internal class ConnectionMenu
     private List<ILockable> lockables = [];
     private List<ILockable> altarLockables = [];
 
+    private static IValueElement[] FieldsWithAttr<T>(MenuElementFactory<RandomizationSettings> factory) where T : Attribute => factory.ElementLookup
+        .Where(e => typeof(RandomizationSettings).GetField(e.Key, BindingFlags.Public | BindingFlags.Instance).GetCustomAttribute<T>() != null)
+        .Select(e => e.Value)
+        .ToArray();
+
     private ConnectionMenu(MenuPage landingPage)
     {
         MenuPage mainPage = new("Treasure Hunt Main Page", landingPage);
@@ -58,22 +62,21 @@ internal class ConnectionMenu
             }
         }
 
-        var poolFields = factory.ElementLookup
-            .Where(e => typeof(RandomizationSettings).GetField(e.Key, BindingFlags.Public | BindingFlags.Instance).GetCustomAttribute<PoolFieldAttribute>() != null)
-            .Select(e => e.Value).ToArray();
-        var altarFields = factory.ElementLookup
-            .Where(e => typeof(RandomizationSettings).GetField(e.Key, BindingFlags.Public | BindingFlags.Instance).GetCustomAttribute<AltarFieldAttribute>() != null)
-            .Select(e => e.Value).ToArray();
+        var poolFields = FieldsWithAttr<PoolFieldAttribute>(factory);
+        var controlsFields = FieldsWithAttr<ControlsFieldAttribute>(factory);
+        var altarFields = FieldsWithAttr<AltarFieldAttribute>(factory);
 
         GridItemPanel pools = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 4, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, poolFields);
-        GridItemPanel controls = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE + new Vector2(0, 90), 2, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_MEDIUM, false, [
-            factory.ElementLookup[nameof(RandomizationSettings.NumberOfReveals)],
-            factory.ElementLookup[nameof(RandomizationSettings.RollingWindow)]]);
-        GridItemPanel altarControls = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE + new Vector2(0, 200), 4, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, altarFields);
+        GridItemPanel controls = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 2, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_MEDIUM, false, controlsFields);
+        GridItemPanel altarControls = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 3, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, altarFields);
         VerticalItemPanel main = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, SpaceParameters.VSPACE_MEDIUM, true, [enabled, pools, controls, altar, altarControls]);
-
         main.Reposition();
-        controls.MoveTo(new(0, 25));
+
+        Vector2 offset = new(0, -60);
+        controls.Translate(offset);
+        altar.Translate(offset);
+        altarControls.Translate(offset);
+
         SetLocksAndColor();
     }
 

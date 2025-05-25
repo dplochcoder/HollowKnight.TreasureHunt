@@ -10,4 +10,7 @@ internal class Preloader : PurenailCore.ModUtil.Preloader
 
     [Preload(SceneNames.RestingGrounds_08, "Ghost Battle Revek")]
     public GameObject? Revek { get; private set; }
+
+    [Preload(SceneNames.Ruins1_24_boss, "Mage Lord/White Flash")]
+    public GameObject? WhiteFlash { get; private set; }
 }
