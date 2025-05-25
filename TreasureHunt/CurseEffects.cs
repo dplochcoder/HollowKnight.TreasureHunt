@@ -247,6 +247,7 @@ internal class CurseEffects : MonoBehaviour
         SceneNames.Crossroads_49b,  // Queen's Elevator
         SceneNames.Deepnest_09,  // Distant Village Stag
         SceneNames.Deepnest_East_13,  // Edge Camp Bench
+        SceneNames.Deepnest_Spider_Town,
         SceneNames.Fungus1_08,  // Hunter
         SceneNames.Fungus1_16_alt,  // Greenpath Stag
         SceneNames.Fungus1_24,  // Gardens Cornifer
