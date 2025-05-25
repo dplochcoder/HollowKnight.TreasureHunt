@@ -285,6 +285,7 @@ internal class CurseEffects : MonoBehaviour
         SceneNames.Room_shop,
         SceneNames.Room_Slug_Shrine,
         SceneNames.Room_Sly_Storeroom,
+        SceneNames.Room_spider_small,
         SceneNames.Room_temple,
         SceneNames.Room_Town_Stag_Station,
         SceneNames.Room_Tram,
