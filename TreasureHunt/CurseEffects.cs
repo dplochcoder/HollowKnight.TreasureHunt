@@ -235,6 +235,7 @@ internal class CurseEffects : MonoBehaviour
     private static readonly HashSet<string> INVALID_REVEK_SCENES = [
         SceneNames.Abyss_03_b,  // Deepnest Tram
         SceneNames.Abyss_05,  // Palace Grounds
+        SceneNames.Abyss_18,  // Basin Toll
         SceneNames.Abyss_21,  // Monarch Wings
         SceneNames.Abyss_22,  // Hidden Station Stag
         SceneNames.Cliffs_03,  // Stag Nest Stag
