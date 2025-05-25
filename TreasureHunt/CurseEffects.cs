@@ -336,7 +336,7 @@ internal class CurseEffects : MonoBehaviour
                 soulDrain -= taken;
             }
 
-            if (revek == null && IsValidScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name) && module!.Settings.CurseOfTheDamned && timeCursed >= initialRevekWait && timeInScene >= sceneRevekWait) (revek, revekAudioSrc) = SpawnRevek(module);
+            if (revek == null && IsValidScene() && module!.Settings.CurseOfTheDamned && timeCursed >= initialRevekWait && timeInScene >= sceneRevekWait) (revek, revekAudioSrc) = SpawnRevek(module);
         }
 
         if (curseActive)
