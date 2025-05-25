@@ -246,6 +246,7 @@ internal class CurseEffects : MonoBehaviour
         SceneNames.Crossroads_47,  // Crossroads Stag
         SceneNames.Crossroads_49,  // Queen's Elevator
         SceneNames.Crossroads_49b,  // Queen's Elevator
+        SceneNames.Crossroads_50,  // Blue Lake
         SceneNames.Deepnest_09,  // Distant Village Stag
         SceneNames.Deepnest_East_13,  // Edge Camp Bench
         SceneNames.Deepnest_Spider_Town,
@@ -262,6 +263,7 @@ internal class CurseEffects : MonoBehaviour
         SceneNames.Grimm_Divine,
         SceneNames.Mines_18,  // CG1 Bench
         SceneNames.Mines_28,  // Outside Crystallized Mound
+        SceneNames.Mines_30,  // CDash outside Cornifer
         SceneNames.Mines_36,  // Deep Focus
         SceneNames.RestingGrounds_07,  // Seer
         SceneNames.RestingGrounds_09,  // Stag
