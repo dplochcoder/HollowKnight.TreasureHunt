@@ -311,7 +311,7 @@ internal class CurseEffects : MonoBehaviour
         SceneNames.Waterways_15,  // Dung Defender relic
     ];
 
-    private static bool IsValidScene()
+    private static bool IsValidRevekScene()
     {
         var gm = GameManager.instance;
         if (!gm.IsGameplayScene() || gm.IsCinematicScene()) return false;
@@ -342,7 +342,7 @@ internal class CurseEffects : MonoBehaviour
                 soulDrain -= taken;
             }
 
-            if (revek == null && IsValidScene() && module!.Settings.CurseOfTheDamned && timeCursed >= initialRevekWait && timeInScene >= sceneRevekWait) (revek, revekAudioSrc) = SpawnRevek(module);
+            if (revek == null && IsValidRevekScene() && module!.Settings.CurseOfTheDamned && timeCursed >= initialRevekWait && timeInScene >= sceneRevekWait) (revek, revekAudioSrc) = SpawnRevek(module);
         }
 
         if (curseActive)
