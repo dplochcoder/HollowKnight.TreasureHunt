@@ -4,7 +4,6 @@ using ItemChanger;
 using MenuChanger.Attributes;
 using Newtonsoft.Json;
 using RandomizerCore.Extensions;
-using RandomizerMod.RC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,20 +28,28 @@ internal class ControlsFieldAttribute : Attribute { }
 [AttributeUsage(AttributeTargets.Field)]
 internal class AltarFieldAttribute : Attribute { }
 
+public enum TieBreakerOrder
+{
+    GoodItemsFirst,
+    GoodItemsLast,
+    Random
+}
+
 public class RandomizationSettings
 {
     public bool Enabled;
 
     [PoolField] public bool TrueEnding;
     [PoolField] public bool Movement;
-    [PoolField] public bool SwimAndIsmas;
+    [PoolField] public bool Swimming;
     [PoolField] public bool Spells;
     [PoolField] public bool MajorKeys;
     [PoolField] public bool KeyLikeCharms;
     [PoolField] public bool FragileCharms;
 
-    [ControlsField] [MenuRange(2, 6)] public int NumberOfReveals = 4;
+    [ControlsField] [MenuRange(2, 10)] public int NumberOfReveals = 4;
     [ControlsField] public bool RollingWindow = false;
+    [ControlsField] public TieBreakerOrder TieBreaks = TieBreakerOrder.GoodItemsFirst;
 
     public bool AltarOfDivination = false;
     [AltarField] public bool CurseOfWeakness = true;
@@ -112,30 +119,55 @@ public class RandomizationSettings
         else return idxA - idxB;
     }
 
-    private static bool IsUniqueKey(string name, IReadOnlyDictionary<string, AbstractItem> placedItems)
+    private static bool IsUniqueKey(AbstractItem item)
     {
-        if (name == ItemNames.Simple_Key || name == ItemNames.Collectors_Map || name == ItemNames.Godtuner) return false;
-        if (placedItems.TryGetValue(name, out var item))
-        {
-            var meta = SupplementalMetadata.Of(item);
-            var poolGroup = meta.Get(InjectedProps.ItemPoolGroup);
-            return poolGroup == PoolGroup.Keys.FriendlyName();
-        }
-
-        return false;
+        if (item.name == ItemNames.Simple_Key || item.name == ItemNames.Collectors_Map || item.name == ItemNames.Godtuner) return false;
+        
+        var meta = SupplementalMetadata.Of(item);
+        var poolGroup = meta.Get(InjectedProps.ItemPoolGroup);
+        return poolGroup == PoolGroup.Keys.FriendlyName();
     }
 
-    public bool IsTrackedItem(RandoModItem item, IReadOnlyDictionary<string, AbstractItem> placedItems)
+    private const string None = "None";
+    private static readonly MetadataProperty<AbstractItem, string> TreasueHuntGroup = new("TreasueHuntGroup", _ => None);
+    private static readonly Dictionary<string, HashSet<string>> baseGroupSets = new()
     {
-        if (TrueEnding && TrueEndingItems.Contains(item.Name)) return true;
-        if (Movement && MovementItems.Contains(item.Name)) return true;
-        if (Spells && SpellItems.Contains(item.Name)) return true;
-        if (SwimAndIsmas && SwimItems.Contains(item.Name)) return true;
-        if (MajorKeys && (MajorKeyItems.Contains(item.Name) || IsUniqueKey(item.Name, placedItems))) return true;
-        if (KeyLikeCharms && KeyLikeCharmItems.Contains(item.Name)) return true;
-        if (FragileCharms && FragileCharmItems.Contains(item.Name)) return true;
+        [nameof(TrueEnding)] = TrueEndingItems,
+        [nameof(Movement)] = MovementItems,
+        [nameof(Spells)] = SpellItems,
+        [nameof(Swimming)] = SwimItems,
+        [nameof(MajorKeys)] = MajorKeyItems,
+        [nameof(KeyLikeCharms)] = KeyLikeCharmItems,
+        [nameof(FragileCharms)] = FragileCharmItems,
+    };
 
-        return false;
+    private static Dictionary<string, string> BuildBaseGroups()
+    {
+        Dictionary<string, string> ret = [];
+        foreach (var e in baseGroupSets) foreach (var item in e.Value) ret.Add(item, e.Key);
+        return ret;
+    }
+    private static readonly Dictionary<string, string> baseGroups = BuildBaseGroups();
+
+    private bool IsGroupEnabled(string name) => name switch
+    {
+        nameof(TrueEnding) => TrueEnding,
+        nameof(Movement) => Movement,
+        nameof(Spells) => Spells,
+        nameof(Swimming) => Swimming,
+        nameof(MajorKeys) => MajorKeys,
+        nameof(KeyLikeCharms) => KeyLikeCharms,
+        nameof(FragileCharms) => FragileCharms,
+        _ => false,
+    };
+
+    public bool IsTrackedItem(AbstractItem item)
+    {
+        var injectedGroup = SupplementalMetadata.Of(item).Get(TreasueHuntGroup);
+        if (injectedGroup != None) return IsGroupEnabled(injectedGroup);
+
+        if (baseGroups.TryGetValue(item.name, out var baseGroup)) return IsGroupEnabled(baseGroup);
+        else return MajorKeys && IsUniqueKey(item);
     }
 
     public RandomizationSettings Clone() => (RandomizationSettings)MemberwiseClone();

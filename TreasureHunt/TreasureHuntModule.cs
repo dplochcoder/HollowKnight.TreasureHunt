@@ -4,6 +4,8 @@ using ItemChanger.Modules;
 using ItemChanger.Placements;
 using ItemChanger.Tags;
 using Modding;
+using PurenailCore.SystemUtil;
+using RandomizerCore.Extensions;
 using RandomizerCore.Logic;
 using RandomizerMod.IC;
 using RandomizerMod.RC;
@@ -307,30 +309,40 @@ internal class TreasureHuntModule : Module
         return spheres;
     }
 
-    private static int CompareItems(string name1, int sphere1, string name2, int sphere2)
+    private int CompareItems(string name1, int sphere1, int random1, string name2, int sphere2, int random2)
     {
         if (sphere1 != sphere2) return sphere1.CompareTo(sphere2);
-        else return RandomizationSettings.CompareItemNames(name1, name2);
+        else return Settings.TieBreaks switch {
+            TieBreakerOrder.GoodItemsFirst => RandomizationSettings.CompareItemNames(name1, name2),
+            TieBreakerOrder.GoodItemsLast => -RandomizationSettings.CompareItemNames(name1, name2),
+            TieBreakerOrder.Random => random1.CompareTo(random2)
+        };  
     }
 
     internal void Start(RandoModContext ctx)
     {
         Seed = ctx.GenerationSettings.Seed;
 
-        Dictionary<string, AbstractItem> placedItems = [];
-        foreach (var item in ItemChanger.Internal.Ref.Settings.GetItems()) placedItems[item.name] = item;
+        Dictionary<int, AbstractItem> placedItems = [];
+        foreach (var item in ItemChanger.Internal.Ref.Settings.GetItems()) if (item.GetTag<RandoItemTag>() is RandoItemTag tag) placedItems[tag.id] = item;
 
         var spheres = CalculateProgressionSpheres(ctx);
 
         foreach (var placement in ctx.itemPlacements)
         {
             if (placement.Location.Name == LocationNames.Start) continue;
-            if (!Settings.IsTrackedItem(placement.Item, placedItems)) continue;
+            if (!Settings.IsTrackedItem(placedItems[placement.Index])) continue;
 
             PlacementIndices.Add(placement.Index);
         }
 
-        PlacementIndices.Sort((a, b) => CompareItems(ctx.itemPlacements[a].Item.Name, spheres[a], ctx.itemPlacements[b].Item.Name, spheres[b]));
+        List<int> randomOrder = [];
+        for (int i = 0; i < PlacementIndices.Count; i++) randomOrder.Add(i);
+        randomOrder.Shuffle(new(ctx.GenerationSettings.Seed + 21));
+        Dictionary<int, int> randomDict = [];
+        for (int i = 0; i < PlacementIndices.Count; i++) randomDict.Add(PlacementIndices[i], randomOrder[i]);
+
+        PlacementIndices.StableSort((a, b) => CompareItems(ctx.itemPlacements[a].Item.Name, spheres[a], randomDict[a], ctx.itemPlacements[b].Item.Name, spheres[b], randomDict[b]));
         UpdateDisplayData();
     }
 }

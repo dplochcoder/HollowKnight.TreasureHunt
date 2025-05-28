@@ -67,12 +67,12 @@ internal class ConnectionMenu
         var altarFields = FieldsWithAttr<AltarFieldAttribute>(factory);
 
         GridItemPanel pools = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 4, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, poolFields);
-        GridItemPanel controls = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 2, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_MEDIUM, false, controlsFields);
+        GridItemPanel controls = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 3, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, controlsFields);
         GridItemPanel altarControls = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 3, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, altarFields);
         VerticalItemPanel main = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, SpaceParameters.VSPACE_MEDIUM, true, [enabled, pools, controls, altar, altarControls]);
         main.Reposition();
 
-        Vector2 offset = new(0, -60);
+        Vector2 offset = new(0, -SpaceParameters.VSPACE_MEDIUM);
         controls.Translate(offset);
         altar.Translate(offset);
         altarControls.Translate(offset);

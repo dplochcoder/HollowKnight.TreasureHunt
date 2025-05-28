@@ -28,6 +28,14 @@ Whether the selection of revealed category items updates immediately. If true, t
 
 If false, all X targets must be obtained before the next X are revealed.
 
+### Tie Breaker Order
+
+By default, "good" items\* are shown first when in the same progression sphere as other treasures.
+
+You can change this setting to either reverse this ordering, or ignore it entirely and randomly sort items within the same spheres.
+
+\* "Good" according to this author is approximately: Dash > Claw > Wings > CDash > Spells (Dive first) > Dream Nail > Swim > Dreamers > White Fragments > Various keys & key-like charms
+
 ### Altar of Divination
 
 The Altar of Divination is a relic located in Resting Grounds, just outside the tramway.
@@ -52,3 +60,11 @@ On ritual success, the player is _cursed_ in the following ways until all of the
 Upon obtaining the divined items, all curses are lifted, and the Shade is returned to just above the altar.
 
 The player can perform multiple rituals if necessary, but the required offering grows larger, and the curses stronger, with each sequential ritual. The player must also wait at least 5 minutes between rituals.
+
+## Connection Metadata
+
+Other mods can interop with Treasure Hunt by providing a "TreasureHuntGroup" metadata property that exactly one of the seven listed categories. See `Settings.cs` for exact names.
+
+If an item has an injected TreasureHuntGroup property, it will be treated as a treasure only if that setting is enabled. This _overrides_ base settings, allowing mods to also remove base items from Treasure Hunt groups if they so choose.
+
+See [ConnectionMetadataInjector](https://github.com/BadMagic100/ConnectionMetadataInjector) for more details.
