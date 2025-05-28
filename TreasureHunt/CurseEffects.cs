@@ -89,6 +89,7 @@ internal class CurseEffects : MonoBehaviour
         Events.OnBeginSceneTransition -= ResetSceneTimer;
 
         Destroy(curseParticles);
+        curseParticles = null;
     }
 
     private int CurseDamageHook(ref int hazardType, int damage) => (curseActive && module!.Settings.CurseOfWeakness && damage > 0) ? (damage + 1) : damage;
@@ -175,7 +176,9 @@ internal class CurseEffects : MonoBehaviour
         orig(self);
 
         realParticles = null;
-        curseParticles?.SetActive(false);
+
+        // What the actual flipping fuck why doesn't null-propagation work here???
+        if (curseParticles != null) curseParticles.SetActive(false);
     }
 
     private void OverrideSPCBeginScene(On.SceneParticlesController.orig_BeginScene orig, SceneParticlesController self)
