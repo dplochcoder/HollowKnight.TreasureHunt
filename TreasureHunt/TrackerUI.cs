@@ -19,7 +19,7 @@ internal class TrackerUI
     internal TrackerUI()
     {
         layout = new(true, "Treasure Hunt Tracker");
-        layout.VisibilityCondition = () => GameManager.instance.isPaused || !TreasureHuntMod.GS.ShowPauseOnly;
+        layout.VisibilityCondition = () => !TreasureHuntMod.GS.ShowPauseOnly || (GameManager.instance?.isPaused ?? false);
 
         StackLayout bigStack = new(layout, "Grid with Label")
         {
