@@ -288,7 +288,12 @@ internal class TreasureHuntModule : Module
                 if (placement.Location.CanGet(pm)) reachable.Add(placement);
                 else newUnclaimed.Add(placement);
             }
-            if (reachable.Count == 0) throw new ArgumentException($"Seed is not completable; could not reach: [{string.Join(",", newUnclaimed.Select(p => p.Location.Name))}]");
+            if (reachable.Count == 0)
+            {
+                TreasureHuntMod.Instance!.LogError($"Unreachable locations: [{string.Join(",", newUnclaimed.Select(p => p.Location.Name))}]");
+                TreasureHuntMod.Instance!.LogError($"Progression Manager: {pm.Dump()}");
+                throw new ArgumentException($"Seed is not completable; see ModLog.txt");
+            }
 
             foreach (var placement in reachable)
             {
