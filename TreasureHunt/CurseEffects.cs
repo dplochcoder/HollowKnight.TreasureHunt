@@ -63,7 +63,7 @@ internal class CurseEffects : MonoBehaviour
     {
         module = ItemChanger.ItemChangerMod.Modules.Get<TreasureHuntModule>();
 
-        ModHooks.TakeDamageHook += CurseDamageHook;
+        ModHooks.TakeDamageHook += CurseOfWeakness;
         On.SceneParticlesController.EnableParticles += OverrideSPCEnableParticles;
         On.SceneParticlesController.DisableParticles += OverrideSPCDisableParticles;
         On.SceneParticlesController.BeginScene += OverrideSPCBeginScene;
@@ -82,7 +82,7 @@ internal class CurseEffects : MonoBehaviour
 
     private void OnDestroy()
     {
-        ModHooks.TakeDamageHook -= CurseDamageHook;
+        ModHooks.TakeDamageHook -= CurseOfWeakness;
         On.SceneParticlesController.EnableParticles -= OverrideSPCEnableParticles;
         On.SceneParticlesController.DisableParticles -= OverrideSPCDisableParticles;
         On.SceneParticlesController.BeginScene -= OverrideSPCBeginScene;
@@ -92,7 +92,7 @@ internal class CurseEffects : MonoBehaviour
         curseParticles = null;
     }
 
-    private int CurseDamageHook(ref int hazardType, int damage) => (curseActive && module!.Settings.CurseOfWeakness && damage > 0) ? (damage + 1) : damage;
+    private int CurseOfWeakness(ref int hazardType, int damage) => (curseActive && module!.Settings.CurseOfWeakness && damage > 0) ? (damage + 1) : damage;
 
     private static GameObject CreateCurseParticles()
     {

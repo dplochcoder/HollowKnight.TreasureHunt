@@ -270,12 +270,6 @@ internal class TreasureHuntModule : Module
 
     private void UpdateGameTime() => GameManager.instance.IncreaseGameTimer(ref GameTime);
 
-    private int CurseDamageHook(ref int hazardType, int damage)
-    {
-        if (IsCurseActive() && Settings.CurseOfWeakness) return damage + 1;
-        else return damage;
-    }
-
     // Maps placement index -> progression sphere
     internal static Dictionary<int, int> CalculateProgressionSpheres(RandoModContext ctx)
     {
