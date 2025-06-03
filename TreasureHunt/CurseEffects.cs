@@ -61,7 +61,7 @@ internal class CurseEffects : MonoBehaviour
 
     private void Awake()
     {
-        module = ItemChanger.ItemChangerMod.Modules.Get<TreasureHuntModule>();
+        module = ItemChangerMod.Modules.Get<TreasureHuntModule>();
 
         ModHooks.TakeDamageHook += CurseOfWeakness;
         On.SceneParticlesController.EnableParticles += OverrideSPCEnableParticles;
@@ -125,7 +125,7 @@ internal class CurseEffects : MonoBehaviour
                 size.sizeMultiplier *= 1.2f;
 
                 var main = particleSystem.main;
-                main.maxParticles = main.maxParticles * 3;
+                main.maxParticles *= 3;
 
                 var lifetime = main.startLifetime;
                 lifetime.curveMultiplier /= 1.5f;
@@ -176,9 +176,9 @@ internal class CurseEffects : MonoBehaviour
         orig(self);
 
         realParticles = null;
-
-        // What the actual flipping fuck why doesn't null-propagation work here???
+#pragma warning disable IDE0031 // Use null propagation
         if (curseParticles != null) curseParticles.SetActive(false);
+#pragma warning restore IDE0031 // Use null propagation
     }
 
     private void OverrideSPCBeginScene(On.SceneParticlesController.orig_BeginScene orig, SceneParticlesController self)
@@ -196,7 +196,7 @@ internal class CurseEffects : MonoBehaviour
     internal static readonly Color CURSED_HERO_LIGHT_COLOR = new(0.85f, 0, 0);
     private float activeTime;
 
-    private static Color sceneColor => GameCameras.instance.sceneColorManager.HeroLightColorA;
+    private static Color SceneColor => GameCameras.instance.sceneColorManager.HeroLightColorA;
 
     private static float Interp(float a, float pct, float b) => a + (b - a) * pct;
     private static Color InterpColor(Color a, float pct, Color b, float alpha) => new(Interp(a.r, pct, b.r), Interp(a.g, pct, b.g), Interp(a.b, pct, b.b), alpha);
@@ -220,7 +220,6 @@ internal class CurseEffects : MonoBehaviour
     private float initialRevekWait;
     private float sceneRevekWait;
     private GameObject? revek;
-    private GameObject? revekAudioSrc;
 
     private void ResetSceneTimer(Transition ignored)
     {
@@ -228,11 +227,6 @@ internal class CurseEffects : MonoBehaviour
         sceneRevekWait = Random.Range(REVEK_SCENE_WAIT_MIN, REVEK_SCENE_WAIT_MAX);
 
         revek = null;
-        if (revekAudioSrc != null)
-        {
-            Destroy(revekAudioSrc);
-            revekAudioSrc = null;
-        }
     }
 
     private static readonly HashSet<string> INVALID_REVEK_SCENES = [
@@ -345,7 +339,7 @@ internal class CurseEffects : MonoBehaviour
                 soulDrain -= taken;
             }
 
-            if (revek == null && IsValidRevekScene() && module!.Settings.CurseOfTheDamned && timeCursed >= initialRevekWait && timeInScene >= sceneRevekWait) (revek, revekAudioSrc) = SpawnRevek(module);
+            if (revek == null && IsValidRevekScene() && module!.Settings.CurseOfTheDamned && timeCursed >= initialRevekWait && timeInScene >= sceneRevekWait) revek = CurseOfTheDamned.SpawnRevek(module);
         }
 
         if (curseActive)
@@ -367,135 +361,7 @@ internal class CurseEffects : MonoBehaviour
         if (heroLightRenderer != null)
         {
             var pct = activeTime / HERO_LIGHT_BLEND;
-            heroLightRenderer.color = InterpColor(sceneColor, pct, CURSED_HERO_LIGHT_COLOR, sceneColor.a);
+            heroLightRenderer.color = InterpColor(SceneColor, pct, CURSED_HERO_LIGHT_COLOR, SceneColor.a);
         }
-    }
-
-    private static GameObject MakeFuryWaves()
-    {
-        var furyWaves = Instantiate(HeroController.instance.gameObject.FindChild("Charm Effects")!.FindChild("Fury")!);
-        furyWaves.transform.localScale = new(1.8f, 1.8f, 1.8f);
-
-        var system = furyWaves.GetComponent<ParticleSystem>();
-        var emission = system.emission;
-        var rateOverTime = emission.rateOverTime;
-        rateOverTime.curveMultiplier *= 2f;
-        emission.rateOverTime = rateOverTime;
-        var main = system.main;
-        var startLifetime = main.startLifetime;
-        startLifetime.curveMultiplier *= 0.75f;
-        main.startLifetime = startLifetime;
-
-        var renderer = furyWaves.GetComponent<ParticleSystemRenderer>();
-        renderer.sortingLayerName = "Over";
-        renderer.sortingOrder = 1;
-
-        Destroy(furyWaves.LocateMyFSM("Control Audio"));
-        Destroy(furyWaves.GetComponent<AudioSource>());
-        return furyWaves;
-    }
-
-    private static (GameObject, GameObject) SpawnRevek(TreasureHuntModule module)
-    {
-        var rituals = module!.CompletedRituals;
-
-        var revek = Instantiate(Preloader.Instance.Revek!);
-        revek.AddComponent<FixRenderer>();
-
-        GameObject revekAudioSrc = new("Revek Audio Src");
-        revekAudioSrc.transform.parent = HeroController.instance.gameObject.transform;
-        revekAudioSrc.transform.localPosition = new(0, -12, 0.1f);
-
-        revek.transform.position = new(-100, -100);
-        var furyWaves = MakeFuryWaves();
-        furyWaves.transform.parent = revek.transform;
-        furyWaves.transform.localPosition = Vector3.zero;
-        furyWaves.SetActive(true);
-
-        var redFlash = Instantiate(Preloader.Instance.WhiteFlash!);
-        redFlash.transform.localScale = new(4.25f, 4.25f, 4.25f);
-        var flashRenderer = redFlash.GetComponent<SpriteRenderer>();
-        flashRenderer.color = new(1f, 0.3f, 0.3f);
-        flashRenderer.sortingOrder = 1;
-        redFlash.transform.parent = revek.transform;
-        redFlash.transform.localPosition = new(0, 0, -0.1f);
-        redFlash.SetActive(false);
-
-        var furyParticles = furyWaves.GetComponent<ParticleSystem>();
-        furyParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-
-        revek.SetActive(true);
-        revek.FindChild("Slash Hit").LocateMyFSM("damages_hero").FsmVariables.GetFsmInt("damageDealt").Value = rituals + 1;
-
-        var fsm = revek.LocateMyFSM("Control");
-        fsm.Fsm.GlobalTransitions = [];
-        fsm.FsmVariables.GetFsmFloat("Speed").Value = 180f + 10 * rituals;
-
-        var gcp = fsm.GetState("Ghost Check Pause");
-        gcp.ClearTransitions();
-        gcp.AddTransition("FINISHED", "Set Angle");
-
-        fsm.GetState("Set Angle").AddFirstAction(new Lambda(() =>
-        {
-            if (!module.IsCurseActive()) Destroy(revek);
-            else
-            {
-                redFlash.SetActive(true);
-                furyParticles.Play();
-            }
-        }));
-
-        // Set position first for proper SFX.
-        var teleIn = fsm.GetState("Slash Tele In");
-        var flash = revek.GetOrAddComponent<SpriteFlash>();
-        // teleIn.AddFirstAction(new Lambda(() => SpriteFlashUtil.CursedFlash(flash)));
-        teleIn.GetFirstActionOfType<AudioPlayerOneShotSingle>().spawnPoint = revekAudioSrc;
-
-        var wait = fsm.GetState("Slash Idle").GetFirstActionOfType<WaitRandom>();
-        wait.timeMin.Value = Mathf.Max(0.5f * Mathf.Pow(0.9f, rituals), 0.25f);
-        wait.timeMax.Value = Mathf.Max(0.75f * Mathf.Pow(0.9f, rituals), wait.timeMin.Value);
-
-        var slash = fsm.GetState("Slash");
-        var audio = slash.GetFirstActionOfType<AudioPlayerOneShot>();
-        audio.pitchMin.Value = 0.6f;
-        audio.pitchMax.Value = 0.8f;
-
-        var attackPause = fsm.GetState("Attack Pause");
-        attackPause.AddFirstAction(new Lambda(() => furyParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting)));
-        wait = attackPause.GetFirstActionOfType<WaitRandom>();
-        wait.timeMin.Value = Mathf.Max(1.5f * Mathf.Pow(0.9f, rituals), 0.5f);
-        wait.timeMax.Value = Mathf.Max(2f * Mathf.Pow(0.9f, rituals), 1f);
-
-        // Parries buy more downtime over time.
-        List<float> increase = [0];
-        var damagedPause = fsm.GetState("Damaged Pause");
-        var damagedWait = damagedPause.GetFirstActionOfType<WaitRandom>();
-        damagedPause.AddFirstAction(new Lambda(() =>
-        {
-            furyParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-
-            damagedWait.timeMin.Value = 4.5f + increase[0];
-            damagedWait.timeMax.Value = 5.5f + increase[0];
-            increase[0] += Mathf.Pow(0.85f, rituals);
-        }));
-
-        var hit = fsm.GetState("Hit").GetFirstActionOfType<AudioPlayerOneShot>();
-        hit.pitchMin.Value = 0.6f;
-        hit.pitchMax.Value = 0.8f;
-
-        return (revek, revekAudioSrc);
-    }
-}
-
-internal class FixRenderer : MonoBehaviour
-{
-    private MeshRenderer? renderer;
-
-    private void Awake() => renderer = GetComponent<MeshRenderer>();
-
-    private void LateUpdate()
-    {
-        renderer!.sortingLayerName = "Over";
-        renderer!.sortingOrder = 1;
     }
 }

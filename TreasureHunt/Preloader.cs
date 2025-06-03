@@ -8,6 +8,9 @@ internal class Preloader : PurenailCore.ModUtil.Preloader
 {
     internal static readonly Preloader Instance = new();
 
+    [Preload(SceneNames.Cliffs_06, "Grimm Arrival Audio")]
+    public GameObject? GrimmArrivalAudio { get; private set; }
+
     [Preload(SceneNames.RestingGrounds_08, "Ghost Battle Revek")]
     public GameObject? Revek { get; private set; }
 

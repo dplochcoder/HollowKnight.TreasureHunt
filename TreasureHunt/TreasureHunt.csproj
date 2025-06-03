@@ -46,6 +46,7 @@
     <None Include=".gitignore" />
     <None Include="LocalOverrides.targets" />
     <EmbeddedResource Include="Resources\**\*.png" />
+    <EmbeddedResource Include="Resources\**\*.wav" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">

@@ -6,6 +6,12 @@ using System.Collections.Generic;
 
 namespace TreasureHunt;
 
+internal record DialogueOptions
+{
+    internal bool useTypewriter = true;
+    internal bool dream = true;
+}
+
 // Largely copied from ItemChanger.DialogueCenter, with some changes.
 internal static class DialogueUtil
 {
@@ -17,9 +23,9 @@ internal static class DialogueUtil
 
     internal static Coroutine StartCoroutine(IEnumerator iter) => HeroController.instance.StartCoroutine(iter);
 
-    private static IEnumerator ShowTextsImpl(List<string> texts, bool useTypewriter)
+    private static IEnumerator ShowTextsImpl(List<string> texts, DialogueOptions opts)
     {
-        BoxOpenFsm.Fsm.Event("BOX UP DREAM");
+        BoxOpenFsm.Fsm.Event(opts.dream ? "BOX UP DREAM" : "BOX UP");
         yield return new WaitForSeconds(0.15f); // orig: 0.3f
 
         DialogueText.LocateMyFSM("Dialogue Page Control").FsmVariables.GetFsmGameObject("Requester").Value = null;
@@ -27,7 +33,7 @@ internal static class DialogueUtil
 
         convoEnded = false;
         DialogueBox box = DialogueBox;
-        box.useTypeWriter = useTypewriter;
+        box.useTypeWriter = opts.useTypewriter;
         box.currentPage = 1;
         TextMeshPro textMesh = box.GetComponent<TextMeshPro>();
         textMesh.text = string.Join("<br><page>", texts);
@@ -41,7 +47,7 @@ internal static class DialogueUtil
         DialogueText.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.TopLeft;
     }
 
-    internal static YieldInstruction ShowTexts(List<string> texts, bool useTypewriter = true) => StartCoroutine(ShowTextsImpl(texts, useTypewriter));
+    internal static YieldInstruction ShowTexts(List<string> texts, DialogueOptions? opts = null) => StartCoroutine(ShowTextsImpl(texts, opts ?? new()));
 
     internal static void Hook() => On.DialogueBox.HideText += OnHideText;
 
