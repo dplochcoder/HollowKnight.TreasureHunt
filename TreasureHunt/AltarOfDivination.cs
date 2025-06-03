@@ -1,4 +1,5 @@
-﻿using ItemChanger;
+﻿using HutongGames.PlayMaker.Actions;
+using ItemChanger;
 using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
 using ItemChanger.Util;
@@ -12,18 +13,47 @@ namespace TreasureHunt;
 
 internal class AltarOfDivination
 {
+    private static readonly EmbeddedSprite altar = new("altar");
+
     public static void Spawn(Scene scene)
     {
+        scene.FindGameObject("rg_gate")?.SetActive(false);
+
         var tablet = TabletUtility.InstantiateTablet(nameof(AltarOfDivination));
 
-        // TODO: Set sprites
         tablet.transform.position = new(33.5f, 5.7f, 2.5f);
         tablet.SetActive(true);
+        foreach (Transform child in tablet.transform) child.gameObject.SetActive(false);
 
+        GameObject sprite = new("AltarSprite");
+        sprite.transform.SetParent(tablet.transform);
+        sprite.transform.position = new(33.5f, 9.1f, 0.01f);
+        sprite.transform.localScale = new(3.2f, 3.2f, 3.2f);
+        var spriteRenderer = sprite.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = altar.Value;
+        spriteRenderer.color = new(0.85f, 0.85f, 0.85f, 1f);
+
+        HookTabletControl(tablet.LocateMyFSM("Tablet Control"));
         HookInspectState(tablet.LocateMyFSM("Inspection"));
     }
 
     private const string RITUAL_END = "RITUAL_END";
+
+    private static void HookTabletControl(PlayMakerFSM fsm)
+    {
+        var init = fsm.GetState("Init");
+        init.SetActions(init.Actions[0], init.Actions[4]);
+
+        var away = fsm.GetState("Away");
+        away.RemoveActionsOfType<SetParticleEmission>();
+        away.RemoveActionsOfType<FadeColorFader>();
+
+        var close = fsm.GetState("Close");
+        close.RemoveActionsOfType<SetParticleEmissionRate>();
+        close.RemoveActionsOfType<PlayParticleEmitter>();
+        close.RemoveActionsOfType<SetParticleEmission>();
+        close.RemoveActionsOfType<FadeColorFader>();
+    }
 
     // Logic largely copied from ItemChanger's TabletUtility.
     private static void HookInspectState(PlayMakerFSM fsm)
