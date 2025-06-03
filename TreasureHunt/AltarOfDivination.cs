@@ -63,7 +63,7 @@ internal class AltarOfDivination
             promptUp.Actions[0],
             promptUp.Actions[1],
             promptUp.Actions[3],
-            new AsyncLambda(PerformRitual, RITUAL_END));
+            new AsyncLambda(cb => PerformRitual(fsm.gameObject, cb), RITUAL_END));
 
         var setBool = fsm.GetState("Set Bool");
         var turnBack = fsm.GetState("Turn Back");
@@ -109,7 +109,16 @@ internal class AltarOfDivination
         return warrior.transform.GetChild(0).gameObject.activeSelf;
     }
 
-    private static IEnumerator PerformRitualInnerImpl()
+    private static void PlayAngryVoice(GameObject src)
+    {
+        var clip = EmbeddedAudioClip.Load("anger");
+
+        var audioSource = src.GetOrAddComponent<AudioSource>();
+        audioSource.pitch = 0.5f;
+        audioSource.PlayOneShot(clip);
+    }
+
+    private static IEnumerator PerformRitualInnerImpl(GameObject src)
     {
         if (XeroActive())
         {
@@ -133,8 +142,6 @@ internal class AltarOfDivination
             yield break;
         }
 
-        // TODO: Dream warrior convo bgm.
-
         // Check time.
         if (mod.CompletedRituals == 0 && mod.GameTime < SINCE_BEGINNING)
         {
@@ -152,10 +159,10 @@ internal class AltarOfDivination
         var accessible = mod.GetVisibleAccessibleTreasure();
         if (accessible != null)
         {
-            // TODO: Angry god seeker
+            PlayAngryVoice(src);
             yield return DialogueUtil.ShowTexts([
                 "Impatient, petulant, dishonorable.<br>Does it not know that with which it bargains?",
-                $"Vessel of blindness, seek the {accessible} before you seek us.<br>Cursed are thee who peek beyond the veil."]);
+                $"Vessel of blindness, seek the {accessible} before you seek us.<br>Cursed are thee who gaze beyond the veil."]);
             QueueDirectDamage(2);
             yield break;
         }
@@ -164,7 +171,7 @@ internal class AltarOfDivination
         var pd = PlayerData.instance;
         if (pd.GetBool(nameof(PlayerData.equippedCharm_27)))
         {
-            // TODO: Angry god seeker
+            PlayAngryVoice(src);
             yield return DialogueUtil.ShowTexts([
                 "Wretched!<br>Vile street ant!<br>Unspeakable!",
                 "It injects its blood with the forbidden nectar, we shall <b>not</b> abide it.<br><br>Begone, filth!"]);
@@ -252,11 +259,11 @@ internal class AltarOfDivination
         pd.SetFloat(nameof(pd.shadePositionY), 11.5f);
     }
 
-    private static IEnumerator PerformRitualImpl(Action callback)
+    private static IEnumerator PerformRitualImpl(GameObject src, Action callback)
     {
-        yield return DialogueUtil.StartCoroutine(PerformRitualInnerImpl());
+        yield return DialogueUtil.StartCoroutine(PerformRitualInnerImpl(src));
         callback();
     }
 
-    private static void PerformRitual(Action callback) => DialogueUtil.StartCoroutine(PerformRitualImpl(callback));
+    private static void PerformRitual(GameObject src, Action callback) => DialogueUtil.StartCoroutine(PerformRitualImpl(src, callback));
 }

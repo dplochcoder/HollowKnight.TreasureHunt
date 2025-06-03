@@ -8,3 +8,4 @@ RandomizerCore.Json
 Randomizer 4
 RandoSettingsManager
 DebugMod
+SFCore

@@ -19,7 +19,7 @@ internal static class DialogueUtil
 
     private static IEnumerator ShowTextsImpl(List<string> texts, bool useTypewriter)
     {
-        BoxOpenFsm.Fsm.Event("BOX UP");
+        BoxOpenFsm.Fsm.Event("BOX UP DREAM");
         yield return new WaitForSeconds(0.15f); // orig: 0.3f
 
         DialogueText.LocateMyFSM("Dialogue Page Control").FsmVariables.GetFsmGameObject("Requester").Value = null;
