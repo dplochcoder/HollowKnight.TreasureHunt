@@ -129,7 +129,7 @@ public class RandomizationSettings
     }
 
     private const string None = "None";
-    private static readonly MetadataProperty<AbstractItem, string> TreasueHuntGroup = new("TreasueHuntGroup", _ => None);
+    private static readonly MetadataProperty<AbstractItem, string> TreasueHuntGroup = new("TreasureHuntGroup", _ => None);
     private static readonly Dictionary<string, HashSet<string>> baseGroupSets = new()
     {
         [nameof(TrueEnding)] = TrueEndingItems,
