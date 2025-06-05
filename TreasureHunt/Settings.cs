@@ -129,7 +129,7 @@ public class RandomizationSettings
     }
 
     private const string None = "None";
-    private static readonly MetadataProperty<AbstractItem, string> TreasueHuntGroup = new("TreasureHuntGroup", _ => None);
+    private static readonly MetadataProperty<AbstractItem, string> TreasureHuntGroup = new("TreasureHuntGroup", _ => None);
     private static readonly Dictionary<string, HashSet<string>> baseGroupSets = new()
     {
         [nameof(TrueEnding)] = TrueEndingItems,
@@ -163,7 +163,7 @@ public class RandomizationSettings
 
     public bool IsTrackedItem(AbstractItem item)
     {
-        var injectedGroup = SupplementalMetadata.Of(item).Get(TreasueHuntGroup);
+        var injectedGroup = SupplementalMetadata.Of(item).Get(TreasureHuntGroup);
         if (injectedGroup != None) return IsGroupEnabled(injectedGroup);
 
         if (baseGroups.TryGetValue(item.name, out var baseGroup)) return IsGroupEnabled(baseGroup);
