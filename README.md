@@ -55,7 +55,7 @@ On ritual success, the player is _cursed_ in the following ways until all of the
 -   Curse of mortality: The player slowly loses soul at all times.
 -   Curse of regret: The player's shade is sealed away in the altar and cannot be killed until the curse is lifted, or the player creates another Shade. The player does however keep their geo (minus offering) after sacrificing.
 -   Curse of obsession: Obtaining any checks other than the divined ones inflicts 2 base damage (3 due to the curse of weakness, 6 if overcharmed). Some exceptions exist to prevent unfair punishment.
--   Curse of the damned: The player may be periodically haunted by otherworldly foes.
+-   Curse of the damned: The player may be periodically haunted by otherworldly foes. The foes have honor though will not pursue the player into a variety of places, including Godhome, White Palace, and all dream realms.
 
 Upon obtaining the divined items, all curses are lifted, and the Shade is returned to just above the altar.
 
