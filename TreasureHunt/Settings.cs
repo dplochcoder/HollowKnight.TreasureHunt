@@ -38,7 +38,7 @@ public enum TieBreakerOrder
 public class RandomizationSettings
 {
     public const int MAX_REVEALS = 10;
-    public const int MAX_CURSES = 4;
+    public const int MAX_CURSES = 7;
 
     public bool Enabled;
 

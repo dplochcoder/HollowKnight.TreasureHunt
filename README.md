@@ -20,7 +20,7 @@ Select and deselect categories to determine what items are counted as 'treasure'
 
 ### Number of Reveals
 
-The number of category items to reveal simultaneously. Minimum 2, maximum 6.
+The number of category items to reveal simultaneously. Minimum 2, maximum 10.
 
 ### Rolling Window
 
@@ -47,7 +47,7 @@ When all remaining known treasures are locked behind _non_-treasures, the player
 -   Sufficient time must have passed. At least 30 minutes from the start of the seed, and at least 5 minutes since the completion of the previous ritual if any.
 -   An offering of 1666 or less geo is required.
 
-If all conditions are met, the ritual will divine up to _four_ items, logically accessible, which when obtained grant access to one or more unobtained treasures. The ritual divines as few items as necessary to bring treasures into logic.
+If all conditions are met, the ritual will divine a series of items, logically accessible, which when obtained grant access to one or more unobtained treasures. The altar _attempts_ to divine as few items as necessary to bring treasures into logic, but this is not strictly guaranteed.
 
 On ritual success, the player is _cursed_ in the following ways until either all of the divined items are obtained, or another treasure is obtained:
 
