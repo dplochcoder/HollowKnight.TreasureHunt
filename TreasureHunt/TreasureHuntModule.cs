@@ -143,6 +143,7 @@ internal class TreasureHuntModule : Module
     private bool CurseOfObsession(ReadOnlyGiveEventArgs args)
     {
         if (!Settings.CurseOfObsession) return false;
+        if (args.Placement is EggShopPlacement) return false;
         if (args.Placement is ShopPlacement) return false;
         if (args.Item.GetTag<PersistentItemTag>() is PersistentItemTag tag && tag.Persistence != Persistence.Single) return false;
         if (args.Item is GrubItem || args.Item is MimicItem || args.Item is SpawnLumafliesItem) return false;
