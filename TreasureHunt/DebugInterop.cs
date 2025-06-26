@@ -1,9 +1,12 @@
 ﻿using DebugMod;
+using RandomizerMod.IC;
 
 namespace TreasureHunt;
 
 internal static class DebugInterop
 {
+    private const string CATEGORY = "Treasure Hunt";
+
     internal static void Setup() => DebugMod.DebugMod.AddToKeyBindList(typeof(DebugInterop));
 
     private static bool GetModule(out TreasureHuntModule mod)
@@ -12,7 +15,7 @@ internal static class DebugInterop
         return mod != null;
     }
 
-    [BindableMethod(name = "Advance Time", category = "Treasure Hunt")]
+    [BindableMethod(name = "Advance Time", category = CATEGORY)]
     public static void AdvanceTime()
     {
         if (!GetModule(out var mod)) return;
@@ -21,7 +24,45 @@ internal static class DebugInterop
         Console.AddLine("Advanced clock by 1 hour.");
     }
 
-    [BindableMethod(name = "Grant Curse", category = "Treasure Hunt")]
+    [BindableMethod(name = "Obtain Accessible Treasure", category = CATEGORY)]
+    public static void ObtainAccessibleTreasures()
+    {
+        if (!GetModule(out var mod)) return;
+
+        // Find if any of the visible treasures are accessible.
+        var rs = RandomizerMod.RandomizerMod.RS;
+        var ctx = rs.Context;
+        var pm = rs.TrackerData.pm;
+
+        foreach (var idx in mod.GetVisibleTreasureIndices())
+        {
+            var randoPlacement = ctx.itemPlacements[idx];
+            if (randoPlacement.Location.CanGet(pm))
+            {
+                foreach (var icPlacement in ItemChanger.Internal.Ref.Settings.Placements.Values)
+                {
+                    foreach (var item in icPlacement.Items)
+                    {
+                        if (item.GetTag<RandoItemTag>() is RandoItemTag tag && tag.id == idx)
+                        {
+                            item.Give(icPlacement, new()
+                            {
+                                Container = "TreasureHunt",
+                                FlingType = ItemChanger.FlingType.DirectDeposit,
+                                MessageType = ItemChanger.MessageType.Corner,
+                                Transform = null,
+                                Callback = null
+                            });
+                        }
+                    }
+                }
+
+                return;
+            }
+        }
+    }
+
+    [BindableMethod(name = "Grant Curse", category = CATEGORY)]
     public static void GrantCurse()
     {
         if (!GetModule(out var mod) || mod.IsCurseActive()) return;
@@ -31,7 +72,7 @@ internal static class DebugInterop
         Console.AddLine("Granted curse.");
     }
 
-    [BindableMethod(name = "Remove Curse", category = "Treasure Hunt")]
+    [BindableMethod(name = "Remove Curse", category = CATEGORY)]
     public static void RemoveCurse()
     {
         if (!GetModule(out var mod) || !mod.IsCurseActive()) return;
@@ -42,7 +83,7 @@ internal static class DebugInterop
         Console.AddLine("Removed curse.");
     }
 
-    [BindableMethod(name = "Reset Curse Count", category = "Treasure Hunt")]
+    [BindableMethod(name = "Reset Curse Count", category = CATEGORY)]
     public static void ResetCurseCount()
     {
         if (!GetModule(out var mod)) return;

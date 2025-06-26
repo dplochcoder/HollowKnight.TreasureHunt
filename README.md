@@ -47,9 +47,9 @@ When all remaining known treasures are locked behind _non_-treasures, the player
 -   Sufficient time must have passed. At least 30 minutes from the start of the seed, and at least 5 minutes since the completion of the previous ritual if any.
 -   An offering of 1666 or less geo is required.
 
-If all conditions are met, the ritual will divine a _singular_ unobtained item which is both logically accessible, and itself grants logical access to one or more unobtained treasures. The ritual may divine multiple items if a treasure exists at Nailmaster's Glory, and all remaining necessary Nail Arts are logically accessible. Otherwise, the ritual fails.
+If all conditions are met, the ritual will divine up to _four_ items, logically accessible, which when obtained grant access to one or more unobtained treasures. The ritual divines as few items as necessary to bring treasures into logic.
 
-On ritual success, the player is _cursed_ in the following ways until all of the divined items are obtained:
+On ritual success, the player is _cursed_ in the following ways until either all of the divined items are obtained, or another treasure is obtained:
 
 -   Curse of weakness: The player takes +1 damage on all hits, before multipliers.
 -   Curse of mortality: The player slowly loses soul at all times.

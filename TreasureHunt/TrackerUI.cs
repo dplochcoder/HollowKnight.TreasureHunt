@@ -10,16 +10,18 @@ namespace TreasureHunt;
 
 internal class TrackerUI
 {
-    private LayoutRoot layout;
-    private List<TextObject> targets = [];
-    private TextObject cursedHeader;
-    private List<TextObject> cursedTargets = [];
-    private List<(AbstractPlacement, Action<VisitStateChangedEventArgs>)> listeners = [];
+    private readonly LayoutRoot layout;
+    private readonly List<TextObject> targets = [];
+    private readonly TextObject cursedHeader;
+    private readonly List<TextObject> cursedTargets = [];
+    private readonly List<(AbstractPlacement, Action<VisitStateChangedEventArgs>)> listeners = [];
 
     internal TrackerUI()
     {
-        layout = new(true, "Treasure Hunt Tracker");
-        layout.VisibilityCondition = () => !TreasureHuntMod.GS.ShowPauseOnly || (GameManager.instance?.isPaused ?? false);
+        layout = new(true, "Treasure Hunt Tracker")
+        {
+            VisibilityCondition = () => !TreasureHuntMod.GS.ShowPauseOnly || (GameManager.instance?.isPaused ?? false)
+        };
 
         StackLayout bigStack = new(layout, "Grid with Label")
         {
@@ -43,7 +45,7 @@ internal class TrackerUI
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < RandomizationSettings.MAX_REVEALS + 1; i++)
         {
             TextObject target = new(layout, $"Target {i + 1}")
             {
@@ -74,7 +76,7 @@ internal class TrackerUI
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < RandomizationSettings.MAX_CURSES; i++)
         {
             TextObject cursedTarget = new(layout, $"Cursed Target {i + 1}")
             {
@@ -108,9 +110,9 @@ internal class TrackerUI
 
     private string ComputePlacementString(AbstractPlacement placement, int idx, DisplayData displayData, Dictionary<int, VisitState>? visitOverrides = null)
     {
-        Action<VisitStateChangedEventArgs> action = args => Update(displayData, new() { [idx] = args.NewFlags });
-        listeners.Add((placement, action));
-        placement.OnVisitStateChanged += action;
+        void UpdateAction(VisitStateChangedEventArgs args) => Update(displayData, new() { [idx] = args.NewFlags });
+        listeners.Add((placement, UpdateAction));
+        placement.OnVisitStateChanged += UpdateAction;
 
         var cost = GetCost(placement, idx);
         string costTxt = "";

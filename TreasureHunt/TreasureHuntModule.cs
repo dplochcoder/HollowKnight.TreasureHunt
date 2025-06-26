@@ -94,7 +94,7 @@ internal class TreasureHuntModule : Module
         };
     }
 
-    private static ProgressionManager NewEmptyPM(RandoModContext ctx)
+    internal static ProgressionManager NewEmptyPM(RandoModContext ctx)
     {
         LogicManager lm = new(new(ctx.LM));
         ProgressionManager pm = new(lm, ctx);
@@ -111,16 +111,14 @@ internal class TreasureHuntModule : Module
         return pm;
     }
 
-    internal string? GetVisibleAccessibleTreasure()
+    internal string? GetArbitraryVisibleAccessibleTreasureName()
     {
-        var visible = GetDisplayData().treasures;
-
         // Find if any of the visible treasures are accessible.
         var rs = RandomizerMod.RandomizerMod.RS;
         var ctx = rs.Context;
         var pm = rs.TrackerData.pm;
 
-        foreach (var idx in visible)
+        foreach (var idx in GetVisibleTreasureIndices())
         {
             var placement = ctx.itemPlacements[idx];
             if (placement.Location.CanGet(pm)) return TrackerUI.Clean(placement.Location.Name);
@@ -131,80 +129,7 @@ internal class TreasureHuntModule : Module
 
     internal bool IsCurseActive() => CursedIndices.Count > 0;
 
-    internal List<int> Curse()
-    {
-        if (IsCurseActive()) return [];
-
-        var rs = RandomizerMod.RandomizerMod.RS;
-        var ctx = rs.Context;
-        var pm = NewEmptyPM(ctx);
-        var mu = pm.mu;
-
-        // Add all obtained items.
-        mu.StopUpdating();
-        foreach (var obtained in rs.TrackerData.obtainedItems)
-        {
-            var placement = ctx.itemPlacements[obtained];
-            pm.Add(placement.Item, placement.Location);
-
-            TreasureHuntMod.Instance!.LogError($"OBTAINED: {placement.Item.Name} at {placement.Location.Name}");
-        }
-        mu.StartUpdating();
-
-        var treasures = GetDisplayData().treasures;
-
-        // Check if a single item unlocks known treasures.
-        List<ItemPlacement> reachable = [];
-        foreach (var placement in ctx.itemPlacements)
-        {
-            if (rs.TrackerData.obtainedItems.Contains(placement.Index) || !placement.Location.CanGet(pm)) continue;
-
-            pm.StartTemp();
-            pm.Add(placement.Item, placement.Location);
-            foreach (var treasure in treasures)
-            {
-                if (ctx.itemPlacements[treasure].Location.CanGet(pm))
-                {
-                    TreasureHuntMod.Instance!.LogError($"SOLVED BY: {placement.Item.Name} at {placement.Location.Name}");
-                    return [placement.Index];
-                }
-            }
-
-            pm.RemoveTempItems();
-        }
-
-        // Make an exception for Nailmaster's Glory.
-        var pd = PlayerData.instance;
-        if (pd.GetBool(nameof(PlayerData.hasAllNailArts))) return [];
-        if (!treasures.Any(idx => ctx.itemPlacements[idx].Location.Name == LocationNames.Nailmasters_Glory)) return [];
-
-        List<int> arts = [];
-        bool dashSlash = pd.GetBool(nameof(PlayerData.hasUpwardSlash));
-        bool cycloneSlash = pd.GetBool(nameof(PlayerData.hasCyclone));
-        bool greatSlash = pd.GetBool(nameof(PlayerData.hasDashSlash));
-        foreach (var placement in ctx.itemPlacements)
-        {
-            if (rs.TrackerData.obtainedItems.Contains(placement.Index)) continue;
-            if (placement.Item.Name != ItemNames.Dash_Slash && placement.Item.Name != ItemNames.Cyclone_Slash && placement.Item.Name != ItemNames.Great_Slash) continue;
-            if (dashSlash && placement.Item.Name == ItemNames.Dash_Slash) continue;
-            if (cycloneSlash && placement.Item.Name == ItemNames.Cyclone_Slash) continue;
-            if (greatSlash && placement.Item.Name == ItemNames.Great_Slash) continue;
-            if (!placement.Location.CanGet(pm)) continue;
-
-            arts.Add(placement.Index);
-            pm.Add(placement.Item, placement.Location);
-
-            if (placement.Item.Name == ItemNames.Dash_Slash) dashSlash = true;
-            if (placement.Item.Name == ItemNames.Great_Slash) greatSlash = true;
-            if (placement.Item.Name == ItemNames.Cyclone_Slash) cycloneSlash = true;
-        }
-
-        if (!dashSlash || !cycloneSlash || !greatSlash) return [];
-
-        // Check that NMG is accessible.
-        foreach (var treasure in treasures) if (ctx.itemPlacements[treasure].Location.CanGet(pm)) return arts;
-        return [];
-    }
+    internal List<int> GetVisibleTreasureIndices() => GetDisplayData().treasures;
 
     internal int GetRitualCost()
     {
@@ -241,17 +166,21 @@ internal class TreasureHuntModule : Module
 
     private void OnRandoItemGive(int index, ReadOnlyGiveEventArgs args)
     {
-        if (CursedIndices.Remove(index))
+        if (CursedIndices.Count > 0)
         {
-            if (CursedIndices.Count == 0) RemoveCurse();
-
-            UpdateDisplayData();
-            return;
+            if (CursedIndices.Remove(index))
+            {
+                if (CursedIndices.Count == 0) RemoveCurse();
+                UpdateDisplayData();
+            }
+            else if (PlacementIndices.Contains(index) && AcquiredPlacements.Add(index))
+            {
+                RemoveCurse();
+                UpdateDisplayData();
+            }
+            else if (CurseOfObsession(args)) AltarOfDivination.QueueDirectDamage(2);
         }
-        else if (CursedIndices.Count > 0 && CurseOfObsession(args)) AltarOfDivination.QueueDirectDamage(2);
-
-        if (!PlacementIndices.Contains(index) || !AcquiredPlacements.Add(index)) return;
-        UpdateDisplayData();
+        else if (PlacementIndices.Contains(index) && AcquiredPlacements.Add(index)) UpdateDisplayData();
     }
 
     private void OnGameCompletion(On.GameCompletionScreen.orig_Start orig, GameCompletionScreen self)
@@ -315,7 +244,8 @@ internal class TreasureHuntModule : Module
         else return Settings.TieBreaks switch {
             TieBreakerOrder.GoodItemsFirst => RandomizationSettings.CompareItemNames(name1, name2),
             TieBreakerOrder.GoodItemsLast => -RandomizationSettings.CompareItemNames(name1, name2),
-            TieBreakerOrder.Random => random1.CompareTo(random2)
+            TieBreakerOrder.Random => random1.CompareTo(random2),
+            _ => throw new ArgumentException($"Unknown order: {Settings.TieBreaks}")
         };  
     }
 

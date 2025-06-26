@@ -37,6 +37,9 @@ public enum TieBreakerOrder
 
 public class RandomizationSettings
 {
+    public const int MAX_REVEALS = 10;
+    public const int MAX_CURSES = 4;
+
     public bool Enabled;
 
     [PoolField] public bool TrueEnding;
@@ -47,7 +50,7 @@ public class RandomizationSettings
     [PoolField] public bool KeyLikeCharms;
     [PoolField] public bool FragileCharms;
 
-    [ControlsField] [MenuRange(2, 10)] public int NumberOfReveals = 4;
+    [ControlsField] [MenuRange(2, MAX_REVEALS)] public int NumberOfReveals = 4;
     [ControlsField] public bool RollingWindow = false;
     [ControlsField] public TieBreakerOrder TieBreaks = TieBreakerOrder.GoodItemsFirst;
 
@@ -62,34 +65,34 @@ public class RandomizationSettings
         return string.Join(",", strs).GetStableHashCode();
     }
 
-    private static HashSet<string> TrueEndingItems = [
+    private static readonly HashSet<string> TrueEndingItems = [
         ItemNames.Dream_Nail, ItemNames.Dream_Gate, ItemNames.Awoken_Dream_Nail,
         ItemNames.Lurien, ItemNames.Monomon, ItemNames.Herrah, ItemNames.Dreamer,
         ItemNames.Queen_Fragment, ItemNames.King_Fragment, ItemNames.Void_Heart
     ];
-    private static HashSet<string> MovementItems = [
+    private static readonly HashSet<string> MovementItems = [
         ItemNames.Left_Mothwing_Cloak, ItemNames.Right_Mothwing_Cloak, ItemNames.Split_Shade_Cloak, ItemNames.Mothwing_Cloak, ItemNames.Shade_Cloak,
         ItemNames.Left_Mantis_Claw, ItemNames.Right_Mantis_Claw, ItemNames.Mantis_Claw,
         ItemNames.Left_Crystal_Heart, ItemNames.Right_Crystal_Heart, ItemNames.Crystal_Heart,
         ItemNames.Monarch_Wings
     ];
-    private static HashSet<string> SwimItems = [ItemNames.Swim, $"Not_{ItemNames.Swim}", ItemNames.Ismas_Tear, $"Not_{ItemNames.Ismas_Tear}"];
-    private static HashSet<string> SpellItems = [
+    private static readonly HashSet<string> SwimItems = [ItemNames.Swim, $"Not_{ItemNames.Swim}", ItemNames.Ismas_Tear, $"Not_{ItemNames.Ismas_Tear}"];
+    private static readonly HashSet<string> SpellItems = [
         ItemNames.Vengeful_Spirit, ItemNames.Shade_Soul,
         ItemNames.Desolate_Dive, ItemNames.Descending_Dark,
         ItemNames.Howling_Wraiths, ItemNames.Abyss_Shriek
     ];
-    private static HashSet<string> MajorKeyItems = [
+    private static readonly HashSet<string> MajorKeyItems = [
         ItemNames.Elevator_Pass, ItemNames.Elegant_Key, ItemNames.Love_Key, ItemNames.Tram_Pass, ItemNames.Kings_Brand
     ];
-    private static HashSet<string> KeyLikeCharmItems = [
+    private static readonly HashSet<string> KeyLikeCharmItems = [
         ItemNames.Grimmchild1, ItemNames.Grimmchild2, ItemNames.Spore_Shroom, ItemNames.Defenders_Crest
     ];
-    private static HashSet<string> FragileCharmItems = [
+    private static readonly HashSet<string> FragileCharmItems = [
         ItemNames.Fragile_Greed, ItemNames.Unbreakable_Greed, ItemNames.Fragile_Heart, ItemNames.Unbreakable_Heart, ItemNames.Fragile_Strength, ItemNames.Unbreakable_Strength
     ];
 
-    private static List<string> ItemPreferenceOrder = [
+    private static readonly List<string> ItemPreferenceOrder = [
         ItemNames.Left_Mothwing_Cloak, ItemNames.Right_Mothwing_Cloak, ItemNames.Split_Shade_Cloak, ItemNames.Mothwing_Cloak, ItemNames.Shade_Cloak,
         ItemNames.Left_Mantis_Claw, ItemNames.Right_Mantis_Claw, ItemNames.Mantis_Claw,
         ItemNames.Monarch_Wings,
