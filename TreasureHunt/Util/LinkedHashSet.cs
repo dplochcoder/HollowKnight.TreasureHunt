@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Util;
 
 public class LinkedHashSet<T> : IEnumerable<T>
 {

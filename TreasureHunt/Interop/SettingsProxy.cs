@@ -1,7 +1,8 @@
 ﻿using RandoSettingsManager.SettingsManagement;
 using RandoSettingsManager.SettingsManagement.Versioning;
+using TreasureHunt.Rando;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Interop;
 
 internal class SettingsProxy : RandoSettingsProxy<RandomizationSettings, string>
 {

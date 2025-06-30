@@ -12,9 +12,12 @@ using RandomizerMod.RC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TreasureHunt.Altar;
+using TreasureHunt.Rando;
+using TreasureHunt.Util;
 using UnityEngine.SceneManagement;
 
-namespace TreasureHunt;
+namespace TreasureHunt.IC;
 
 internal record DisplayData
 {

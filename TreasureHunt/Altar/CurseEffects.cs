@@ -4,9 +4,10 @@ using Modding;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TreasureHunt.IC;
 using UnityEngine;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Altar;
 
 internal class CurseEffects : MonoBehaviour
 {
@@ -90,7 +91,7 @@ internal class CurseEffects : MonoBehaviour
         curseParticles = null;
     }
 
-    private int CurseOfWeakness(ref int hazardType, int damage) => (curseActive && module!.Settings.CurseOfWeakness && damage > 0) ? (damage + 1) : damage;
+    private int CurseOfWeakness(ref int hazardType, int damage) => curseActive && module!.Settings.CurseOfWeakness && damage > 0 ? damage + 1 : damage;
 
     private static GameObject CreateCurseParticles()
     {

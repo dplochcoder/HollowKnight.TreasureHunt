@@ -6,14 +6,16 @@ using ItemChanger.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TreasureHunt.IC;
+using TreasureHunt.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Altar;
 
 internal class AltarOfDivination
 {
-    private static readonly EmbeddedSprite altar = new("altar");
+    private static readonly IC.EmbeddedSprite altar = new("altar");
 
     public static void Spawn(Scene scene)
     {
@@ -122,7 +124,7 @@ internal class AltarOfDivination
 
     private static AudioSource PlayRumble(GameObject src)
     {
-        var clip = Preloader.Instance.GrimmArrivalAudio!.GetComponent<AudioSource>().clip;
+        var clip = TreasureHuntPreloader.Instance.GrimmArrivalAudio!.GetComponent<AudioSource>().clip;
 
         GameObject audioObj = new("AudioSrc");
         audioObj.transform.position = src.transform.position;
@@ -318,7 +320,7 @@ internal static class AudioExtensions
             {
                 yield return null;
                 tick += Time.deltaTime;
-                self.volume = Mathf.Max(0, 1 - (tick / time));
+                self.volume = Mathf.Max(0, 1 - tick / time);
             }
             self.Stop();
         }

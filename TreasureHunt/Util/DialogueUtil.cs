@@ -4,7 +4,7 @@ using UnityEngine;
 using HutongGames.PlayMaker;
 using System.Collections.Generic;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Util;
 
 internal record DialogueOptions
 {

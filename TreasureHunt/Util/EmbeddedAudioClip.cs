@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Util;
 
 internal static class EmbeddedAudioClip
 {

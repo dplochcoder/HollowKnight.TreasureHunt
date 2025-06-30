@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using TreasureHunt.IC;
+using TreasureHunt.Rando;
+using TreasureHunt.Util;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Altar;
 
 internal class SearchAlgorithm
 {
@@ -39,7 +42,7 @@ internal class SearchAlgorithm
 
     private List<int>? result;
 
-    private static HashSet<string> HIGH_VOLUME_TERMS = ["ESSENCE", "GEO", "GRUBS", "HALLOWNESTSEALS", "KINGSIDOLS", "MAPS", "RANCIDEGGS", "SIMPLE", "WANDERERSJOURNALS"];
+    private static readonly HashSet<string> HIGH_VOLUME_TERMS = ["ESSENCE", "GEO", "GRUBS", "HALLOWNESTSEALS", "KINGSIDOLS", "MAPS", "RANCIDEGGS", "SIMPLE", "WANDERERSJOURNALS"];
 
     private static (Term, int)? GetSingleTermIncrease(ProgressionManager pm, ProgressionData before, ILogicItem item, out bool isHighVolume)
     {

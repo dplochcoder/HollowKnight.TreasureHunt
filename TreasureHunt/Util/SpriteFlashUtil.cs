@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using UnityEngine;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Util;
 
 internal static class SpriteFlashUtil
 {

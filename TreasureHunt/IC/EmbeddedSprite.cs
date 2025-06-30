@@ -1,6 +1,6 @@
 ﻿using ItemChanger.Internal;
 
-namespace TreasureHunt;
+namespace TreasureHunt.IC;
 
 public class EmbeddedSprite : ItemChanger.EmbeddedSprite
 {

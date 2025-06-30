@@ -1,7 +1,8 @@
 ﻿using DebugMod;
 using RandomizerMod.IC;
+using TreasureHunt.IC;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Interop;
 
 internal static class DebugInterop
 {

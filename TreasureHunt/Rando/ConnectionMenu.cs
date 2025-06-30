@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Rando;
 
 internal class ConnectionMenu
 {
@@ -29,15 +29,14 @@ internal class ConnectionMenu
         return true;
     }
 
-    private SmallButton entryButton;
-    private MenuElementFactory<RandomizationSettings> factory;
-    private List<ILockable> lockables = [];
-    private List<ILockable> altarLockables = [];
+    private readonly SmallButton entryButton;
+    private readonly MenuElementFactory<RandomizationSettings> factory;
+    private readonly List<ILockable> lockables = [];
+    private readonly List<ILockable> altarLockables = [];
 
-    private static IValueElement[] FieldsWithAttr<T>(MenuElementFactory<RandomizationSettings> factory) where T : Attribute => factory.ElementLookup
+    private static IValueElement[] FieldsWithAttr<T>(MenuElementFactory<RandomizationSettings> factory) where T : Attribute => [.. factory.ElementLookup
         .Where(e => typeof(RandomizationSettings).GetField(e.Key, BindingFlags.Public | BindingFlags.Instance).GetCustomAttribute<T>() != null)
-        .Select(e => e.Value)
-        .ToArray();
+        .Select(e => e.Value)];
 
     private ConnectionMenu(MenuPage landingPage)
     {

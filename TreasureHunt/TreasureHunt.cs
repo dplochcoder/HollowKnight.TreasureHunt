@@ -2,6 +2,9 @@ using ItemChanger.Internal.Menu;
 using Modding;
 using RandomizerMod.RC;
 using System.Collections.Generic;
+using TreasureHunt.IC;
+using TreasureHunt.Interop;
+using TreasureHunt.Rando;
 using UnityEngine;
 
 namespace TreasureHunt;
@@ -10,9 +13,9 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
 {
     public static TreasureHuntMod? Instance;
 
-    private static string version = PurenailCore.ModUtil.VersionUtil.ComputeVersion<TreasureHuntMod>();
+    private static readonly string Version = PurenailCore.ModUtil.VersionUtil.ComputeVersion<TreasureHuntMod>();
 
-    public override string GetVersion() => version;
+    public override string GetVersion() => Version;
 
     public TreasureHuntMod() : base("TreasureHunt")
     {
@@ -23,11 +26,11 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
 
     private static void HookDebugInterop() => DebugInterop.Setup();
 
-    public override List<(string, string)> GetPreloadNames() => Preloader.Instance.GetPreloadNames();
+    public override List<(string, string)> GetPreloadNames() => TreasureHuntPreloader.Instance.GetPreloadNames();
 
     public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
-        Preloader.Instance.Initialize(preloadedObjects);
+        TreasureHuntPreloader.Instance.Initialize(preloadedObjects);
 
         ConnectionMenu.Setup();
         if (ModHooks.GetMod("RandoSettingsManager") is Mod) HookRandoSettingsManager();

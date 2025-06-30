@@ -2,9 +2,10 @@
 using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
 using System.Collections.Generic;
+using TreasureHunt.IC;
 using UnityEngine;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Altar;
 
 internal class CurseOfTheDamned : MonoBehaviour, IHitResponder
 {
@@ -12,7 +13,7 @@ internal class CurseOfTheDamned : MonoBehaviour, IHitResponder
     {
         var rituals = module!.CompletedRituals;
 
-        var revek = Instantiate(Preloader.Instance.Revek!);
+        var revek = Instantiate(TreasureHuntPreloader.Instance.Revek!);
         revek.AddComponent<CurseOfTheDamned>();
 
         GameObject revekAudioSrc = new("Revek Audio Src");
@@ -25,7 +26,7 @@ internal class CurseOfTheDamned : MonoBehaviour, IHitResponder
         furyWaves.transform.localPosition = Vector3.zero;
         furyWaves.SetActive(true);
 
-        var redFlash = Instantiate(Preloader.Instance.WhiteFlash!);
+        var redFlash = Instantiate(TreasureHuntPreloader.Instance.WhiteFlash!);
         redFlash.transform.localScale = new(4.25f, 4.25f, 4.25f);
         var flashRenderer = redFlash.GetComponent<SpriteRenderer>();
         flashRenderer.color = new(1f, 0.3f, 0.3f);

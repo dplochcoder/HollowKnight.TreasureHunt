@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace TreasureHunt;
 
-internal class Preloader : PurenailCore.ModUtil.Preloader
+internal class TreasureHuntPreloader : PurenailCore.ModUtil.Preloader
 {
-    internal static readonly Preloader Instance = new();
+    internal static readonly TreasureHuntPreloader Instance = new();
 
     [Preload(SceneNames.Cliffs_06, "Grimm Arrival Audio")]
     public GameObject? GrimmArrivalAudio { get; private set; }

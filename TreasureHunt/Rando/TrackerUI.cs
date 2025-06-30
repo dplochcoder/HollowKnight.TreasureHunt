@@ -4,9 +4,10 @@ using MagicUI.Elements;
 using RandomizerMod.IC;
 using System;
 using System.Collections.Generic;
+using TreasureHunt.IC;
 using UnityEngine;
 
-namespace TreasureHunt;
+namespace TreasureHunt.Rando;
 
 internal class TrackerUI
 {
