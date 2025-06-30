@@ -12,7 +12,9 @@ internal static class DebugInterop
 
     private static bool GetModule(out TreasureHuntModule mod)
     {
+#pragma warning disable CS8601 // Possible null reference assignment.
         mod = ItemChanger.ItemChangerMod.Modules.Get<TreasureHuntModule>();
+#pragma warning restore CS8601 // Possible null reference assignment.
         return mod != null;
     }
 
@@ -68,9 +70,18 @@ internal static class DebugInterop
     {
         if (!GetModule(out var mod) || mod.IsCurseActive()) return;
 
-        mod.CursedIndices.Add(0);
-        mod.UpdateDisplayData();
-        Console.AddLine("Granted curse.");
+        var ctx = RandomizerMod.RandomizerMod.RS.Context;
+        for (int i = 0; i < ctx.itemPlacements.Count; i++)
+        {
+            if (!mod.Acquired.Contains(i))
+            {
+                mod.GrantCurse([i]);
+                Console.AddLine("Granted curse.");
+                return;
+            }
+        }
+
+        Console.AddLine("All items obtained.");
     }
 
     [BindableMethod(name = "Remove Curse", category = CATEGORY)]
@@ -78,8 +89,7 @@ internal static class DebugInterop
     {
         if (!GetModule(out var mod) || !mod.IsCurseActive()) return;
 
-        mod.CursedIndices.Clear();
-        mod.RemoveCurse();
+        mod.Curses.ForEach(c => c.CurseItems.Clear());
         mod.UpdateDisplayData();
         Console.AddLine("Removed curse.");
     }
@@ -89,7 +99,8 @@ internal static class DebugInterop
     {
         if (!GetModule(out var mod)) return;
 
-        mod.CompletedRituals = 0;
+        mod.Curses.Clear();
+        mod.UpdateDisplayData();
         Console.AddLine("Reset curse count.");
     }
 }

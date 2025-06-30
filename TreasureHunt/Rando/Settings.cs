@@ -51,7 +51,6 @@ public class RandomizationSettings
     [PoolField] public bool FragileCharms;
 
     [ControlsField] [MenuRange(2, MAX_REVEALS)] public int NumberOfReveals = 4;
-    [ControlsField] public bool RollingWindow = false;
     [ControlsField] public TieBreakerOrder TieBreaks = TieBreakerOrder.GoodItemsFirst;
 
     public bool AltarOfDivination = false;

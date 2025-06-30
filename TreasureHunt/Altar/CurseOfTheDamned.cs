@@ -11,7 +11,7 @@ internal class CurseOfTheDamned : MonoBehaviour, IHitResponder
 {
     internal static GameObject SpawnRevek(TreasureHuntModule module)
     {
-        var rituals = module!.CompletedRituals;
+        var rituals = module!.CompletedRituals();
 
         var revek = Instantiate(TreasureHuntPreloader.Instance.Revek!);
         revek.AddComponent<CurseOfTheDamned>();

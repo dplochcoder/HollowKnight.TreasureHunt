@@ -123,7 +123,7 @@ internal class SearchAlgorithm
         TreasureHuntMod.Instance!.Log($"ALTAR: Rejected {singleItems} single item solutions in {StatTime()}");
 
         // Grab full progression spheres until a treasure is available, or we collect too many items.
-        LinkedHashSet<int> newObtained = [];
+        OrderedHashSet<int> newObtained = [];
         pm.StartTemp();
 
         int spheres = 0;

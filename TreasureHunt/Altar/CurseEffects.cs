@@ -329,7 +329,7 @@ internal class CurseEffects : MonoBehaviour
         {
             timeCursed += Time.deltaTime;
             timeInScene += Time.deltaTime;
-            soulDrain += Time.deltaTime * (module!.CompletedRituals + 1);
+            soulDrain += Time.deltaTime * (module!.CompletedRituals() + 1);
 
             int taken = Mathf.FloorToInt(soulDrain);
             if (taken > 0)

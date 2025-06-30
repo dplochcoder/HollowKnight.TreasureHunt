@@ -160,14 +160,14 @@ internal class AltarOfDivination
         }
 
         // Check time.
-        if (mod.CompletedRituals == 0 && mod.GameTime < SINCE_BEGINNING)
+        if (mod.CompletedRituals() == 0 && mod.GameTime < SINCE_BEGINNING)
         {
             yield return DialogueUtil.ShowTexts([$"Impatient vessel, we are not ready. Go, explore, collect.<br><br>Return to bargain in {ShowTime(SINCE_BEGINNING - mod.GameTime)}."]);
             yield break;
         }
-        if (mod.CompletedRituals > 0 && mod.GameTime < mod.LastCompletedRitual + SINCE_LAST)
+        if (mod.CompletedRituals() > 0 && mod.GameTime < mod.LastLiftedCurse + SINCE_LAST)
         {
-            var wait = mod.LastCompletedRitual + SINCE_LAST - mod.GameTime;
+            var wait = mod.LastLiftedCurse + SINCE_LAST - mod.GameTime;
             yield return DialogueUtil.ShowTexts([$"Tarnished one, you would return so soon? We will not be so kind next time.<br><br>Go, return in {ShowTime(wait)} if you must."]);
             yield break;
         }
@@ -284,10 +284,7 @@ internal class AltarOfDivination
         pd.SetString(nameof(pd.shadeMapZone), "NULL");
 
         var mod = ItemChangerMod.Modules.Get<TreasureHuntModule>()!;
-        mod.CursedIndices = cursedIndices;
-        mod.UpdateDisplayData();
-
-        GameManager.instance.SaveGame();
+        mod.GrantCurse(cursedIndices);
     }
 
     internal static void MaybeRestoreShade()
