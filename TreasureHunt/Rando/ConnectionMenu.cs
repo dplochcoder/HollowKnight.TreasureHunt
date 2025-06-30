@@ -66,13 +66,13 @@ internal class ConnectionMenu
         var altarFields = FieldsWithAttr<AltarFieldAttribute>(factory);
 
         GridItemPanel pools = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 4, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, poolFields);
-        GridItemPanel controls = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 3, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, controlsFields);
+        List<GridItemPanel> controlsPanels = [.. controlsFields.Select(f => new GridItemPanel(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 1, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, f))];
         GridItemPanel altarControls = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 3, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, altarFields);
-        VerticalItemPanel main = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, SpaceParameters.VSPACE_MEDIUM, true, [enabled, pools, controls, altar, altarControls]);
+        VerticalItemPanel main = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, SpaceParameters.VSPACE_MEDIUM, true, [enabled, pools, .. controlsPanels, altar, altarControls]);
         main.Reposition();
 
         Vector2 offset = new(0, -SpaceParameters.VSPACE_MEDIUM);
-        controls.Translate(offset);
+        controlsPanels.ForEach(p => p.Translate(offset));
         altar.Translate(offset);
         altarControls.Translate(offset);
 
