@@ -4,32 +4,26 @@ using System.Collections.Generic;
 
 namespace TreasureHunt.Util;
 
-public class OrderedHashSet<T> : IEnumerable<T>
+public class OrderedHashSet<T> : IList<T>
 {
     private Dictionary<T, int> positions = [];
     private SortedDictionary<int, T> elements = [];
     private int nextIndex = 0;
 
-    public List<T> JsonFormat
+    private void Compact()
     {
-        get => [.. elements.Values];
-        set
-        {
-            Clear();
-            foreach (var v in value) Add(v);
-        }
+        if (nextIndex == positions.Count) return;
+
+        List<T> elems = [.. this];
+        Clear();
+        foreach (var e in elems) Add(e);
     }
 
     public T Get(int index)
     {
         if (index < 0 || index >= positions.Count) throw new System.ArgumentOutOfRangeException($"{index}: [0, {positions.Count})");
-        if (nextIndex > positions.Count)
-        {
-            List<T> elems = [.. this];
-            Clear();
-            foreach (var e in elems) Add(e);
-        }
 
+        Compact();
         return elements[index];
     }
 
@@ -64,7 +58,47 @@ public class OrderedHashSet<T> : IEnumerable<T>
     [JsonIgnore]
     public int Count => positions.Count;
 
+    [JsonIgnore]
+    public bool IsReadOnly => false;
+
+    public T this[int index] { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+
     public IEnumerator<T> GetEnumerator() => elements.Values.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => elements.Values.GetEnumerator();
+
+    public int IndexOf(T item)
+    {
+        Compact();
+        return positions.TryGetValue(item, out var idx) ? idx : -1;
+    }
+
+    private void ModifyList(System.Action<List<T>> action)
+    {
+        List<T> list = [.. this];
+        action(list);
+        Clear();
+        list.ForEach(i => Add(i));
+    }
+
+    public void Insert(int index, T item)
+    {
+        if (Contains(item)) return;
+        ModifyList(l => l.Insert(index, item));
+    }
+
+    public void RemoveAt(int index)
+    {
+        Compact();
+        positions.Remove(elements[index]);
+        elements.Remove(index);
+    }
+
+    void ICollection<T>.Add(T item) => Add(item);
+
+    public void CopyTo(T[] array, int arrayIndex) 
+    {
+        List<T> list = [.. this];
+        list.CopyTo(array, arrayIndex);
+    }
 }
