@@ -61,7 +61,34 @@ public class OrderedHashSet<T> : IList<T>
     [JsonIgnore]
     public bool IsReadOnly => false;
 
-    public T this[int index] { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public T this[int index]
+    {
+        get
+        {
+            Compact();
+            return elements[index];
+        }
+        set
+        {
+            Compact();
+
+            var prev = elements[index];
+            if (positions.TryGetValue(value, out var prevIdx))
+            {
+                if (prevIdx != index)
+                {
+                    (elements[index], elements[prevIdx]) = (value, prev);
+                    positions[prev] = prevIdx;
+                    positions[value] = index;
+                }
+                return;
+            }
+
+            positions.Remove(prev);
+            positions[value] = index;
+            elements[index] = value;
+        }
+    }
 
     public IEnumerator<T> GetEnumerator() => elements.Values.GetEnumerator();
 
