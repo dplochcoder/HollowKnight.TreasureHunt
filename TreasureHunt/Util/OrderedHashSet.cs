@@ -6,8 +6,8 @@ namespace TreasureHunt.Util;
 
 public class OrderedHashSet<T> : IList<T>
 {
-    private Dictionary<T, int> positions = [];
-    private SortedDictionary<int, T> elements = [];
+    private readonly Dictionary<T, int> positions = [];
+    private readonly SortedDictionary<int, T> elements = [];
     private int nextIndex = 0;
 
     private void Compact()
@@ -125,7 +125,7 @@ public class OrderedHashSet<T> : IList<T>
 
     public void CopyTo(T[] array, int arrayIndex) 
     {
-        List<T> list = [.. this];
+        List<T> list = [.. elements.Values];
         list.CopyTo(array, arrayIndex);
     }
 }
