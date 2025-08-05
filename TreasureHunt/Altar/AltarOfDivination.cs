@@ -160,31 +160,19 @@ internal class AltarOfDivination
         }
 
         // Check time.
-        if (mod.CompletedRituals() == 0 && mod.GameTime < SINCE_BEGINNING)
+        if (!TreasureHuntMod.InvokeOnIgnoreRitualTimeRequirement())
         {
-            yield return DialogueUtil.ShowTexts([$"Impatient vessel, we are not ready. Go, explore, collect.<br><br>Return to bargain in {ShowTime(SINCE_BEGINNING - mod.GameTime)}."]);
-            yield break;
-        }
-        if (mod.CompletedRituals() > 0 && mod.GameTime < mod.LastLiftedCurse + SINCE_LAST)
-        {
-            var wait = mod.LastLiftedCurse + SINCE_LAST - mod.GameTime;
-            yield return DialogueUtil.ShowTexts([$"Tarnished one, you would return so soon? We will not be so kind next time.<br><br>Go, return in {ShowTime(wait)} if you must."]);
-            yield break;
-        }
-
-        // Check accessibility.
-        var accessible = mod.GetArbitraryVisibleAccessibleTreasureName();
-        if (accessible != null)
-        {
-            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value = true;
-            PlayAngryVoice(src);
-            yield return DialogueUtil.ShowTexts([
-                "Impatient, petulant, dishonorable.<br>Does it not know that with which it bargains?",
-                $"Vessel of blindness, seek the {accessible} before you seek us.<br>Cursed are thee who gaze beyond the veil."]);
-            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value = false;
-
-            QueueDirectDamage(2);
-            yield break;
+            if (mod.CompletedRituals() == 0 && mod.GameTime < SINCE_BEGINNING)
+            {
+                yield return DialogueUtil.ShowTexts([$"Impatient vessel, we are not ready. Go, explore, collect.<br><br>Return to bargain in {ShowTime(SINCE_BEGINNING - mod.GameTime)}."]);
+                yield break;
+            }
+            if (mod.CompletedRituals() > 0 && mod.GameTime < mod.LastLiftedCurse + SINCE_LAST)
+            {
+                var wait = mod.LastLiftedCurse + SINCE_LAST - mod.GameTime;
+                yield return DialogueUtil.ShowTexts([$"Tarnished one, you would return so soon? We will not be so kind next time.<br><br>Go, return in {ShowTime(wait)} if you must."]);
+                yield break;
+            }
         }
 
         // Check health and shade.
@@ -216,8 +204,25 @@ internal class AltarOfDivination
             yield break;
         }
 
+        // Check accessibility.
+        var accessible = mod.GetArbitraryVisibleAccessibleTreasureName();
+        if (accessible != null)
+        {
+            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value = true;
+            PlayAngryVoice(src);
+            yield return DialogueUtil.ShowTexts([
+                "Impatient, petulant, dishonorable.<br>Does it not know that with which it bargains?",
+                $"Vessel of blindness, seek the {accessible} before you seek us.<br>Cursed are thee who gaze beyond the veil."]);
+            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value = false;
+
+            QueueDirectDamage(2);
+            yield break;
+        }
+
         // Check geo.
         int cost = mod.GetRitualCost();
+        TreasureHuntMod.ModifyRitualCost(mod.CompletedRituals(), ref cost);
+
         if (pd.GetInt(nameof(PlayerData.geo)) < cost)
         {
             int missing = cost - pd.GetInt(nameof(PlayerData.geo));
@@ -225,7 +230,11 @@ internal class AltarOfDivination
             yield break;
         }
 
-        SearchAlgorithm algo = new(mod.GetVisibleTreasureIndices());
+        SearchAlgorithm? algo = null;
+        List<int>? cursedIndices = null;
+        if (TreasureHuntMod.CalculateExtensionCurses(out var extCursedIndices)) cursedIndices = extCursedIndices;
+        else algo = new(mod.GetVisibleTreasureIndices());
+
         yield return DialogueUtil.ShowTexts([
             "It arrives.<br>Whole, resolved, pure, and without recourse.<br>Its need is true and its tithings are grand.",
             "We shall scour the world, that it might have purpose again."]);
@@ -237,11 +246,11 @@ internal class AltarOfDivination
         GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingBig").Value = true;
         yield return new WaitForSeconds(4);
 
-        var cursedIndices = algo.GetResult();
+        cursedIndices ??= algo!.GetResult();
         while (cursedIndices == null)
         {
             yield return null;
-            cursedIndices = algo.GetResult();
+            cursedIndices = algo!.GetResult();
         }
 
         GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingBig").Value = false;

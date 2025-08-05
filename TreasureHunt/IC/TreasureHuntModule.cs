@@ -4,6 +4,7 @@ using ItemChanger.Modules;
 using ItemChanger.Placements;
 using ItemChanger.Tags;
 using Modding;
+using PurenailCore.CollectionUtil;
 using PurenailCore.SystemUtil;
 using RandomizerCore.Extensions;
 using RandomizerCore.Logic;
@@ -51,7 +52,7 @@ internal class TreasureHuntModule : Module
     public RandomizationSettings Settings = new();
     public int Seed;
     public HashSet<int> Treasures = [];
-    public OrderedHashSet<int> RemainingTreasures = [];
+    public IndexedSet<int> RemainingTreasures = [];
     public HashSet<int> Acquired = [];
 
     // Ritual data.

@@ -1,6 +1,8 @@
 using ItemChanger.Internal.Menu;
 using Modding;
+using PurenailCore.CollectionUtil;
 using RandomizerMod.RC;
+using System;
 using System.Collections.Generic;
 using TreasureHunt.IC;
 using TreasureHunt.Interop;
@@ -77,4 +79,45 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
         });
         return builder.CreateMenuScreen();
     }
+
+    private static readonly SortedMultimap<float, CalculateCurses> curseCalculators = new();
+    internal static bool CalculateExtensionCurses(out List<int> cursePlacements)
+    {
+        foreach (var e in curseCalculators.AsDict) foreach (var v in e.Value) if (v(out cursePlacements)) return true;
+
+        cursePlacements = [];
+        return false;
+    }
+
+    private static readonly SortedMultimap<float, CalculateRitualCost> costCalculators = new();
+    internal static void ModifyRitualCost(int completedRituals, ref int cost)
+    {
+        foreach (var e in costCalculators.AsDict) foreach (var v in e.Value) v(completedRituals, ref cost);
+    }
+
+    internal static bool InvokeOnIgnoreRitualTimeRequirement()
+    {
+        bool ignore = false;
+        OnIgnoreRitualTimeRequirement?.Invoke(ref ignore);
+        return ignore;
+    }
+
+    // Public API
+
+    // Override the curse calculator for the Altar of Divination.
+    public delegate bool CalculateCurses(out List<int> cursePlacements);
+
+    // Override the cost calculator for curses.
+    public delegate void CalculateRitualCost(int completedRituals, ref int cost);
+
+    // If true, ignore time requirements on performing rituals.
+    public delegate void IgnoreRitualTimeRequirement(ref bool ignore);
+
+    public static void AddCurseCalculator(float priority, CalculateCurses curseCalculator) => curseCalculators.Add(priority, curseCalculator);
+    public static void RemoveCurseCalculator(float priority, CalculateCurses curseCalculator) => curseCalculators.Remove(priority, curseCalculator);
+
+    public static void AddCostCalculator(float priority, CalculateRitualCost costCalculator) => costCalculators.Add(priority, costCalculator);
+    public static void RemoveCostCalculator(float priority, CalculateRitualCost costCalculator) => costCalculators.Remove(priority, costCalculator);
+
+    public static event IgnoreRitualTimeRequirement? OnIgnoreRitualTimeRequirement;
 }
