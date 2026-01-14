@@ -220,24 +220,24 @@ internal class TreasureHuntModule : Module
         return true;
     }
 
-    internal void UpdateDisplayData(DisplayData? data = null)
+    internal void UpdateDisplayData()
     {
-        data ??= GetDisplayData();
+        var data = GetDisplayData();
         ui?.Update(data);
         curseEffects?.SetCurseActive(data.cursed.Count > 0);
     }
 
     private void OnRandoItemGive(int index, ReadOnlyGiveEventArgs args)
     {
+        var data = GetDisplayData();
+
+        // Evaluate this before acquiring the item, which removes it from the curse list.
+        bool wasCursed = data.cursed.Count > 0 && !data.cursed.Contains(index);
+
         if (!Acquired.Add(index)) return;
 
-        if (!RemainingTreasures.Remove(index))
-        {
-            var data = GetDisplayData();
-            if (data.cursed.Count > 0 && !data.cursed.Contains(index) && CurseOfObsession(args)) AltarOfDivination.QueueDirectDamage(2);
-            UpdateDisplayData(data);
-        }
-        else UpdateDisplayData();
+        if (!RemainingTreasures.Remove(index) && wasCursed && CurseOfObsession(args)) AltarOfDivination.QueueDirectDamage(2);
+        UpdateDisplayData();
     }
 
     private void OnGameCompletion(On.GameCompletionScreen.orig_Start orig, GameCompletionScreen self)
