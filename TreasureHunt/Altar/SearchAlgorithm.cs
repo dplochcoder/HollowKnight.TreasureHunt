@@ -1,11 +1,11 @@
-﻿using PurenailCore.CollectionUtil;
-using RandomizerCore;
-using RandomizerCore.Logic;
-using RandomizerMod.RC;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using PurenailCore.CollectionUtil;
+using RandomizerCore;
+using RandomizerCore.Logic;
+using RandomizerMod.RC;
 using TreasureHunt.IC;
 using TreasureHunt.Rando;
 using TreasureHunt.Util;
@@ -38,14 +38,33 @@ internal class SearchAlgorithm
 
     internal List<int>? GetResult()
     {
-        lock (this) { return result; }
+        lock (this)
+        {
+            return result;
+        }
     }
 
     private List<int>? result;
 
-    private static readonly HashSet<string> HIGH_VOLUME_TERMS = ["ESSENCE", "GEO", "GRUBS", "HALLOWNESTSEALS", "KINGSIDOLS", "MAPS", "RANCIDEGGS", "SIMPLE", "WANDERERSJOURNALS"];
+    private static readonly HashSet<string> HIGH_VOLUME_TERMS =
+    [
+        "ESSENCE",
+        "GEO",
+        "GRUBS",
+        "HALLOWNESTSEALS",
+        "KINGSIDOLS",
+        "MAPS",
+        "RANCIDEGGS",
+        "SIMPLE",
+        "WANDERERSJOURNALS",
+    ];
 
-    private static (Term, int)? GetSingleTermIncrease(ProgressionManager pm, ProgressionData before, ILogicItem item, out bool isHighVolume)
+    private static (Term, int)? GetSingleTermIncrease(
+        ProgressionManager pm,
+        ProgressionData before,
+        ILogicItem item,
+        out bool isHighVolume
+    )
     {
         pm.StartTemp();
         item.AddTo(pm);
@@ -54,27 +73,39 @@ internal class SearchAlgorithm
 
         List<Term> terms = [.. ProgressionData.GetDiffTerms(before, after)];
         isHighVolume = terms.Any(t => HIGH_VOLUME_TERMS.Contains(t.Name));
-        if (terms.Count != 1 || terms[0].Type == TermType.State) return null;
+        if (terms.Count != 1 || terms[0].Type == TermType.State)
+            return null;
 
         var term = terms[0];
         return (term, after.GetValue(term) - before.GetValue(term));
     }
 
     // Sort lesser values before larger ones. This is mostly relevant for essence drops.
-    private static int CompareTerms(ProgressionManager pm, ProgressionData before, ItemPlacement a, ItemPlacement b)
+    private static int CompareTerms(
+        ProgressionManager pm,
+        ProgressionData before,
+        ItemPlacement a,
+        ItemPlacement b
+    )
     {
         var p1 = GetSingleTermIncrease(pm, before, a.Item, out var p1HighVol);
         var p2 = GetSingleTermIncrease(pm, before, b.Item, out var p2HighVol);
-        if (p1HighVol != p2HighVol) return p1HighVol ? -1 : 1;
+        if (p1HighVol != p2HighVol)
+            return p1HighVol ? -1 : 1;
 
-        if (p1 == null && p2 == null) return a.Index.CompareTo(b.Index);
-        if (p1 == null) return -1;
-        if (p2 == null) return 1;
+        if (p1 == null && p2 == null)
+            return a.Index.CompareTo(b.Index);
+        if (p1 == null)
+            return -1;
+        if (p2 == null)
+            return 1;
 
         var (term1, value1) = p1.Value;
         var (term2, value2) = p2.Value;
-        if (term1 != term2) return term1.Id.CompareTo(term2.Id);
-        else return value1.CompareTo(value2);
+        if (term1 != term2)
+            return term1.Id.CompareTo(term2.Id);
+        else
+            return value1.CompareTo(value2);
     }
 
     private List<int> SearchImpl()
@@ -99,20 +130,24 @@ internal class SearchAlgorithm
         }
         mu.StartUpdating();
 
-        bool CanGetAnyTarget() => targets.Select(t => itemPlacements[t].Location).Any(l => l.CanGet(pm));
+        bool CanGetAnyTarget() =>
+            targets.Select(t => itemPlacements[t].Location).Any(l => l.CanGet(pm));
 
         // First, check if any singular item would solve the problem.
         int singleItems = 0;
         foreach (var placement in itemPlacements)
         {
-            if (obtainedItems.Contains(placement.Index) || !placement.Location.CanGet(pm)) continue;
+            if (obtainedItems.Contains(placement.Index) || !placement.Location.CanGet(pm))
+                continue;
 
             pm.StartTemp();
             pm.Add(placement.Item, placement.Location);
 
             if (CanGetAnyTarget())
             {
-                TreasureHuntMod.Instance!.Log($"ALTAR: Found single item solution: {placement.Location.Name} in {StatTime()}");
+                TreasureHuntMod.Instance!.Log(
+                    $"ALTAR: Found single item solution: {placement.Location.Name} in {StatTime()}"
+                );
                 return [placement.Index];
             }
             else
@@ -121,14 +156,19 @@ internal class SearchAlgorithm
                 ++singleItems;
             }
         }
-        TreasureHuntMod.Instance!.Log($"ALTAR: Rejected {singleItems} single item solutions in {StatTime()}");
+        TreasureHuntMod.Instance!.Log(
+            $"ALTAR: Rejected {singleItems} single item solutions in {StatTime()}"
+        );
 
         // Grab full progression spheres until a treasure is available, or we collect too many items.
         IndexedSet<int> newObtained = [];
         pm.StartTemp();
 
         int spheres = 0;
-        List<ItemPlacement> unreachable = [.. itemPlacements.Where(p => !obtainedItems.Contains(p.Index))];
+        List<ItemPlacement> unreachable =
+        [
+            .. itemPlacements.Where(p => !obtainedItems.Contains(p.Index)),
+        ];
         for (int i = 0; i < RandomizationSettings.MAX_CURSES; i++)
         {
             List<ItemPlacement> reachable = [];
@@ -140,18 +180,23 @@ internal class SearchAlgorithm
                     reachable.Add(placement);
                     newObtained.Add(placement.Index);
                 }
-                else newUnreachable.Add(placement);
+                else
+                    newUnreachable.Add(placement);
             }
 
             mu.StopUpdating();
-            foreach (var p in reachable) pm.Add(p.Item, p.Location);
+            foreach (var p in reachable)
+                pm.Add(p.Item, p.Location);
             mu.StartUpdating();
 
             ++spheres;
-            if (CanGetAnyTarget()) break;
+            if (CanGetAnyTarget())
+                break;
             unreachable = newUnreachable;
         }
-        TreasureHuntMod.Instance.Log($"ALTAR: Searched {spheres} progression spheres in {StatTime()}");
+        TreasureHuntMod.Instance.Log(
+            $"ALTAR: Searched {spheres} progression spheres in {StatTime()}"
+        );
         if (!CanGetAnyTarget())
         {
             TreasureHuntMod.Instance.Log($"ALTAR: Too many progression spheres.");
@@ -170,8 +215,10 @@ internal class SearchAlgorithm
                 List<ItemPlacement> newUnreachable = [];
                 foreach (var placement in unreachable)
                 {
-                    if (placement.Location.CanGet(pm)) reachable.Add(placement);
-                    else newUnreachable.Add(placement);
+                    if (placement.Location.CanGet(pm))
+                        reachable.Add(placement);
+                    else
+                        newUnreachable.Add(placement);
                 }
                 if (reachable.Count == 0)
                 {
@@ -180,7 +227,8 @@ internal class SearchAlgorithm
                 }
 
                 mu.StopUpdating();
-                foreach (var p in reachable) pm.Add(p.Item, p.Location);
+                foreach (var p in reachable)
+                    pm.Add(p.Item, p.Location);
                 mu.StartUpdating();
 
                 if (CanGetAnyTarget())
@@ -197,7 +245,9 @@ internal class SearchAlgorithm
         var beforeSnapshot = tempPm.GetSnapshot();
 
         List<int> toPrune = [.. newObtained];
-        toPrune.Sort((a, b) => CompareTerms(tempPm, beforeSnapshot, itemPlacements[a], itemPlacements[b]));
+        toPrune.Sort(
+            (a, b) => CompareTerms(tempPm, beforeSnapshot, itemPlacements[a], itemPlacements[b])
+        );
         toPrune.Reverse();
 
         int pruned = 0;
@@ -209,7 +259,9 @@ internal class SearchAlgorithm
                 pruned++;
             }
         }
-        TreasureHuntMod.Instance.Log($"ALTAR: Pruned {pruned} of {toPrune.Count} items in {StatTime()}");
+        TreasureHuntMod.Instance.Log(
+            $"ALTAR: Pruned {pruned} of {toPrune.Count} items in {StatTime()}"
+        );
 
         if (newObtained.Count <= RandomizationSettings.MAX_CURSES)
         {
@@ -218,7 +270,9 @@ internal class SearchAlgorithm
         }
         else
         {
-            TreasureHuntMod.Instance.Log($"ALTAR: Failure; chain too long ({newObtained.Count} > {RandomizationSettings.MAX_CURSES})");
+            TreasureHuntMod.Instance.Log(
+                $"ALTAR: Failure; chain too long ({newObtained.Count} > {RandomizationSettings.MAX_CURSES})"
+            );
             return [];
         }
     }
@@ -228,12 +282,18 @@ internal class SearchAlgorithm
         try
         {
             var tmp = SearchImpl();
-            lock (this) { result = tmp; }
+            lock (this)
+            {
+                result = tmp;
+            }
         }
         catch (Exception e)
         {
             TreasureHuntMod.Instance!.LogError($"Search failed: {e}");
-            lock (this) { result = []; }
+            lock (this)
+            {
+                result = [];
+            }
         }
     }
 }

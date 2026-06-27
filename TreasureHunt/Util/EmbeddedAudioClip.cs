@@ -10,9 +10,12 @@ internal static class EmbeddedAudioClip
 
     internal static AudioClip Load(string name)
     {
-        if (clips.TryGetValue(name, out var clip)) return clip;
+        if (clips.TryGetValue(name, out var clip))
+            return clip;
 
-        using Stream s = typeof(EmbeddedAudioClip).Assembly.GetManifestResourceStream($"TreasureHunt.Resources.Sounds.{name}.wav");
+        using Stream s = typeof(EmbeddedAudioClip).Assembly.GetManifestResourceStream(
+            $"TreasureHunt.Resources.Sounds.{name}.wav"
+        );
         clip = SFCore.Utils.WavUtils.ToAudioClip(s, name);
         clips.Add(name, clip);
         return clip;

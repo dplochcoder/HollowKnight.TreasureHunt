@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
 using ItemChanger.Internal.Menu;
 using Modding;
 using PurenailCore.CollectionUtil;
 using RandomizerMod.RC;
-using System;
-using System.Collections.Generic;
 using TreasureHunt.IC;
 using TreasureHunt.Interop;
 using TreasureHunt.Rando;
@@ -15,11 +15,13 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
 {
     public static TreasureHuntMod? Instance;
 
-    private static readonly string Version = PurenailCore.ModUtil.VersionUtil.ComputeVersion<TreasureHuntMod>();
+    private static readonly string Version =
+        PurenailCore.ModUtil.VersionUtil.ComputeVersion<TreasureHuntMod>();
 
     public override string GetVersion() => Version;
 
-    public TreasureHuntMod() : base("TreasureHunt")
+    public TreasureHuntMod()
+        : base("TreasureHunt")
     {
         Instance = this;
     }
@@ -28,15 +30,20 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
 
     private static void HookDebugInterop() => DebugInterop.Setup();
 
-    public override List<(string, string)> GetPreloadNames() => TreasureHuntPreloader.Instance.GetPreloadNames();
+    public override List<(string, string)> GetPreloadNames() =>
+        TreasureHuntPreloader.Instance.GetPreloadNames();
 
-    public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
+    public override void Initialize(
+        Dictionary<string, Dictionary<string, GameObject>> preloadedObjects
+    )
     {
         TreasureHuntPreloader.Instance.Initialize(preloadedObjects);
 
         ConnectionMenu.Setup();
-        if (ModHooks.GetMod("RandoSettingsManager") is Mod) HookRandoSettingsManager();
-        if (ModHooks.GetMod("DebugMod") is Mod) HookDebugInterop();
+        if (ModHooks.GetMod("RandoSettingsManager") is Mod)
+            HookRandoSettingsManager();
+        if (ModHooks.GetMod("DebugMod") is Mod)
+            HookDebugInterop();
 
         RandoController.OnExportCompleted += OnExportCompleted;
         RandoController.OnCalculateHash += OnCalculateHash;
@@ -52,7 +59,8 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
 
     private void OnExportCompleted(RandoController rc)
     {
-        if (!GS.IsEnabled) return;
+        if (!GS.IsEnabled)
+            return;
 
         var mod = ItemChanger.ItemChangerMod.Modules.GetOrAdd<TreasureHuntModule>();
         mod.Settings = GS.RS.Clone();
@@ -61,7 +69,8 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
 
     private int OnCalculateHash(RandoController rc, int orig)
     {
-        if (!GS.IsEnabled) return 0;
+        if (!GS.IsEnabled)
+            return 0;
 
         return GS.RS.GetStableHashCode();
     }
@@ -69,30 +78,39 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
     public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
     {
         ModMenuScreenBuilder builder = new("Treasure Hunt", modListMenu);
-        builder.AddHorizontalOption(new()
-        {
-            Name = "Show paused only",
-            Description = "If yes, treasure hunt UI will only appear when game is paused.",
-            Values = ["No", "Yes"],
-            Saver = i => GS.ShowPauseOnly = i == 1,
-            Loader = () => GS.ShowPauseOnly ? 1 : 0,
-        });
+        builder.AddHorizontalOption(
+            new()
+            {
+                Name = "Show paused only",
+                Description = "If yes, treasure hunt UI will only appear when game is paused.",
+                Values = ["No", "Yes"],
+                Saver = i => GS.ShowPauseOnly = i == 1,
+                Loader = () => GS.ShowPauseOnly ? 1 : 0,
+            }
+        );
         return builder.CreateMenuScreen();
     }
 
     private static readonly SortedMultimap<float, CalculateCurses> curseCalculators = new();
+
     internal static bool CalculateExtensionCurses(out List<int> cursePlacements)
     {
-        foreach (var e in curseCalculators.AsDict) foreach (var v in e.Value) if (v(out cursePlacements)) return true;
+        foreach (var e in curseCalculators.AsDict)
+        foreach (var v in e.Value)
+            if (v(out cursePlacements))
+                return true;
 
         cursePlacements = [];
         return false;
     }
 
     private static readonly SortedMultimap<float, CalculateRitualCost> costCalculators = new();
+
     internal static void ModifyRitualCost(int completedRituals, ref int cost)
     {
-        foreach (var e in costCalculators.AsDict) foreach (var v in e.Value) v(completedRituals, ref cost);
+        foreach (var e in costCalculators.AsDict)
+        foreach (var v in e.Value)
+            v(completedRituals, ref cost);
     }
 
     internal static bool InvokeOnIgnoreRitualTimeRequirement()
@@ -113,11 +131,17 @@ public class TreasureHuntMod : Mod, IGlobalSettings<GlobalSettings>, ICustomMenu
     // If true, ignore time requirements on performing rituals.
     public delegate void IgnoreRitualTimeRequirement(ref bool ignore);
 
-    public static void AddCurseCalculator(float priority, CalculateCurses curseCalculator) => curseCalculators.Add(priority, curseCalculator);
-    public static void RemoveCurseCalculator(float priority, CalculateCurses curseCalculator) => curseCalculators.Remove(priority, curseCalculator);
+    public static void AddCurseCalculator(float priority, CalculateCurses curseCalculator) =>
+        curseCalculators.Add(priority, curseCalculator);
 
-    public static void AddCostCalculator(float priority, CalculateRitualCost costCalculator) => costCalculators.Add(priority, costCalculator);
-    public static void RemoveCostCalculator(float priority, CalculateRitualCost costCalculator) => costCalculators.Remove(priority, costCalculator);
+    public static void RemoveCurseCalculator(float priority, CalculateCurses curseCalculator) =>
+        curseCalculators.Remove(priority, curseCalculator);
+
+    public static void AddCostCalculator(float priority, CalculateRitualCost costCalculator) =>
+        costCalculators.Add(priority, costCalculator);
+
+    public static void RemoveCostCalculator(float priority, CalculateRitualCost costCalculator) =>
+        costCalculators.Remove(priority, costCalculator);
 
     public static event IgnoreRitualTimeRequirement? OnIgnoreRitualTimeRequirement;
 }

@@ -1,9 +1,9 @@
-﻿using ItemChanger;
-using ItemChanger.Extensions;
-using Modding;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ItemChanger;
+using ItemChanger.Extensions;
+using Modding;
 using TreasureHunt.IC;
 using UnityEngine;
 
@@ -15,7 +15,7 @@ internal class CurseEffects : MonoBehaviour
     {
         GameObject obj = new("CurseEffects");
         DontDestroyOnLoad(obj);
-        
+
         return obj.AddComponent<CurseEffects>();
     }
 
@@ -41,10 +41,12 @@ internal class CurseEffects : MonoBehaviour
             curseActive = false;
             hudFadeGroup?.FadeDown();
 
-            if (heroLightRenderer != null) heroLightRenderer.color = GameCameras.instance.sceneColorManager.HeroLightColorA;
+            if (heroLightRenderer != null)
+                heroLightRenderer.color = GameCameras.instance.sceneColorManager.HeroLightColorA;
 
             var pd = PlayerData.instance;
-            if (pd.GetInt(nameof(pd.health)) + pd.GetInt(nameof(pd.healthBlue)) > 1) EnableLeakParticles(false);
+            if (pd.GetInt(nameof(pd.health)) + pd.GetInt(nameof(pd.healthBlue)) > 1)
+                EnableLeakParticles(false);
 
             realParticles?.SetActive(true);
             StopCurseParticles();
@@ -91,11 +93,16 @@ internal class CurseEffects : MonoBehaviour
         curseParticles = null;
     }
 
-    private int CurseOfWeakness(ref int hazardType, int damage) => curseActive && module!.Settings.CurseOfWeakness && damage > 0 ? damage + 1 : damage;
+    private int CurseOfWeakness(ref int hazardType, int damage) =>
+        curseActive && module!.Settings.CurseOfWeakness && damage > 0 ? damage + 1 : damage;
 
     private static GameObject CreateCurseParticles()
     {
-        var ctrl = GameObject.Find("_GameCameras").FindChild("CameraParent")!.FindChild("tk2dCamera")!.FindChild("SceneParticlesController")!;
+        var ctrl = GameObject
+            .Find("_GameCameras")
+            .FindChild("CameraParent")!
+            .FindChild("tk2dCamera")!
+            .FindChild("SceneParticlesController")!;
         var src = ctrl.FindChild("resting_grounds_particles")!;
 
         var clone = Instantiate(src)!;
@@ -113,7 +120,8 @@ internal class CurseEffects : MonoBehaviour
             var color = colorOverLifetime.color;
             var grad = color.gradient;
             var newColorKeys = new GradientColorKey[grad.colorKeys.Length];
-            for (int i = 0; i < newColorKeys.Length; i++) newColorKeys[i].color = CURSED_HERO_LIGHT_COLOR;
+            for (int i = 0; i < newColorKeys.Length; i++)
+                newColorKeys[i].color = CURSED_HERO_LIGHT_COLOR;
             grad.SetKeys(newColorKeys, grad.alphaKeys);
             color.gradient = grad;
             colorOverLifetime.color = color;
@@ -136,7 +144,8 @@ internal class CurseEffects : MonoBehaviour
 
     private void StopCurseParticles()
     {
-        foreach (var p in curseParticles!.GetComponentsInChildren<ParticleSystem>()) p.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        foreach (var p in curseParticles!.GetComponentsInChildren<ParticleSystem>())
+            p.Stop(true, ParticleSystemStopBehavior.StopEmitting);
 
         GameObject prev = curseParticles;
         IEnumerator DestroyParticles()
@@ -152,13 +161,19 @@ internal class CurseEffects : MonoBehaviour
 
     private IEnumerable<GameObject> BaseParticleObjects(SceneParticlesController ctrl)
     {
-        foreach (var p in ctrl.sceneParticles) if (p.particleObject != null) yield return p.particleObject;
-        if (ctrl.defaultParticles.particleObject != null) yield return ctrl.defaultParticles.particleObject;
+        foreach (var p in ctrl.sceneParticles)
+            if (p.particleObject != null)
+                yield return p.particleObject;
+        if (ctrl.defaultParticles.particleObject != null)
+            yield return ctrl.defaultParticles.particleObject;
     }
 
     private GameObject? realParticles;
 
-    private void OverrideSPCEnableParticles(On.SceneParticlesController.orig_EnableParticles orig, SceneParticlesController self)
+    private void OverrideSPCEnableParticles(
+        On.SceneParticlesController.orig_EnableParticles orig,
+        SceneParticlesController self
+    )
     {
         orig(self);
 
@@ -170,17 +185,24 @@ internal class CurseEffects : MonoBehaviour
         }
     }
 
-    private void OverrideSPCDisableParticles(On.SceneParticlesController.orig_DisableParticles orig, SceneParticlesController self)
+    private void OverrideSPCDisableParticles(
+        On.SceneParticlesController.orig_DisableParticles orig,
+        SceneParticlesController self
+    )
     {
         orig(self);
 
         realParticles = null;
 #pragma warning disable IDE0031 // Use null propagation
-        if (curseParticles != null) curseParticles.SetActive(false);
+        if (curseParticles != null)
+            curseParticles.SetActive(false);
 #pragma warning restore IDE0031 // Use null propagation
     }
 
-    private void OverrideSPCBeginScene(On.SceneParticlesController.orig_BeginScene orig, SceneParticlesController self)
+    private void OverrideSPCBeginScene(
+        On.SceneParticlesController.orig_BeginScene orig,
+        SceneParticlesController self
+    )
     {
         if (curseActive)
         {
@@ -198,11 +220,14 @@ internal class CurseEffects : MonoBehaviour
     private static Color SceneColor => GameCameras.instance.sceneColorManager.HeroLightColorA;
 
     private static float Interp(float a, float pct, float b) => a + (b - a) * pct;
-    private static Color InterpColor(Color a, float pct, Color b, float alpha) => new(Interp(a.r, pct, b.r), Interp(a.g, pct, b.g), Interp(a.b, pct, b.b), alpha);
+
+    private static Color InterpColor(Color a, float pct, Color b, float alpha) =>
+        new(Interp(a.r, pct, b.r), Interp(a.g, pct, b.g), Interp(a.b, pct, b.b), alpha);
 
     private void EnableLeakParticles(bool enable)
     {
-        if (leakParticles == null) return;
+        if (leakParticles == null)
+            return;
 
         var emission = leakParticles.emission;
         emission.enabled = enable;
@@ -228,46 +253,50 @@ internal class CurseEffects : MonoBehaviour
         revek = null;
     }
 
-    private static readonly HashSet<string> INVALID_REVEK_SCENES = [
-        SceneNames.Abyss_03_b,  // Deepnest Tram
-        SceneNames.Abyss_05,  // Palace Grounds
-        SceneNames.Abyss_18,  // Basin Toll
-        SceneNames.Abyss_21,  // Monarch Wings
-        SceneNames.Abyss_22,  // Hidden Station Stag
-        SceneNames.Cliffs_03,  // Stag Nest Stag
-        SceneNames.Cliffs_05,  // Joni's
-        SceneNames.Cliffs_06,  // Grimm Lantern
-        SceneNames.Crossroads_30,  // Hot Spring Bench
-        SceneNames.Crossroads_38,  // Grubfather
-        SceneNames.Crossroads_47,  // Crossroads Stag
-        SceneNames.Crossroads_49,  // Queen's Elevator
-        SceneNames.Crossroads_49b,  // Queen's Elevator
-        SceneNames.Crossroads_50,  // Blue Lake
-        SceneNames.Deepnest_09,  // Distant Village Stag
-        SceneNames.Deepnest_East_13,  // Edge Camp Bench
+    private static readonly HashSet<string> INVALID_REVEK_SCENES =
+    [
+        SceneNames.Abyss_03_b, // Deepnest Tram
+        SceneNames.Abyss_05, // Palace Grounds
+        SceneNames.Abyss_18, // Basin Toll
+        SceneNames.Abyss_21, // Monarch Wings
+        SceneNames.Abyss_22, // Hidden Station Stag
+        SceneNames.Cliffs_03, // Stag Nest Stag
+        SceneNames.Cliffs_05, // Joni's
+        SceneNames.Cliffs_06, // Grimm Lantern
+        SceneNames.Crossroads_30, // Hot Spring Bench
+        SceneNames.Crossroads_38, // Grubfather
+        SceneNames.Crossroads_47, // Crossroads Stag
+        SceneNames.Crossroads_49, // Queen's Elevator
+        SceneNames.Crossroads_49b, // Queen's Elevator
+        SceneNames.Crossroads_50, // Blue Lake
+        SceneNames.Deepnest_09, // Distant Village Stag
+        SceneNames.Deepnest_East_13, // Edge Camp Bench
         SceneNames.Deepnest_Spider_Town,
-        SceneNames.Fungus1_08,  // Hunter
-        SceneNames.Fungus1_16_alt,  // Greenpath Stag
-        SceneNames.Fungus1_24,  // Gardens Cornifer
-        SceneNames.Fungus1_37,  // Stonesanc Bench
-        SceneNames.Fungus2_02,  // Queen's Station stag
-        SceneNames.Fungus2_26,  // Leg Eater
-        SceneNames.Fungus2_34,  // Willoh
-        SceneNames.Fungus3_archive,  // Archives Bench
-        SceneNames.Fungus3_39,  // Traitor's Grave
-        SceneNames.Fungus3_50,  // Queen's Gardens Toll
+        SceneNames.Fungus1_08, // Hunter
+        SceneNames.Fungus1_16_alt, // Greenpath Stag
+        SceneNames.Fungus1_24, // Gardens Cornifer
+        SceneNames.Fungus1_37, // Stonesanc Bench
+        SceneNames.Fungus2_02, // Queen's Station stag
+        SceneNames.Fungus2_26, // Leg Eater
+        SceneNames.Fungus2_34, // Willoh
+        SceneNames.Fungus3_archive, // Archives Bench
+        SceneNames.Fungus3_39, // Traitor's Grave
+        SceneNames.Fungus3_50, // Queen's Gardens Toll
         SceneNames.Grimm_Divine,
-        SceneNames.Mines_18,  // CG1 Bench
-        SceneNames.Mines_28,  // Outside Crystallized Mound
-        SceneNames.Mines_30,  // CDash outside Cornifer
-        SceneNames.Mines_36,  // Deep Focus
-        SceneNames.RestingGrounds_07,  // Seer
-        SceneNames.RestingGrounds_09,  // Stag
-        SceneNames.RestingGrounds_12,  // Outside Grey Mourner
+        SceneNames.Mines_18, // CG1 Bench
+        SceneNames.Mines_28, // Outside Crystallized Mound
+        SceneNames.Mines_30, // CDash outside Cornifer
+        SceneNames.Mines_36, // Deep Focus
+        SceneNames.RestingGrounds_07, // Seer
+        SceneNames.RestingGrounds_09, // Stag
+        SceneNames.RestingGrounds_12, // Outside Grey Mourner
         SceneNames.Room_Bretta,
         SceneNames.Room_Bretta_Basement,
         SceneNames.Room_Colosseum_01,
         SceneNames.Room_Colosseum_02,
+        SceneNames.Room_Colosseum_Bronze,
+        SceneNames.Room_Colosseum_Gold,
+        SceneNames.Room_Colosseum_Silver,
         SceneNames.Room_Colosseum_Spectate,
         SceneNames.Room_Charm_Shop,
         SceneNames.Room_Final_Boss_Atrium,
@@ -293,37 +322,49 @@ internal class CurseEffects : MonoBehaviour
         SceneNames.Room_Tram_RG,
         SceneNames.Room_Wyrm,
         SceneNames.Ruins_Bathhouse,
-        SceneNames.Ruins_House_03,  // Emilitia
-        SceneNames.Ruins1_18,  // Spire Bench
-        SceneNames.Ruins1_27,  // Fountain
-        SceneNames.Ruins1_29,  // City Storerooms Stag
-        SceneNames.Ruins1_05b,  // Lemm
-        SceneNames.Ruins2_Watcher_Room,  // Lurien
-        SceneNames.Ruins2_08,  // King's Station Stag
-        SceneNames.Ruins2_10,  // King's Elevator
-        SceneNames.Ruins2_10b,  // King's Elevator
+        SceneNames.Ruins_House_03, // Emilitia
+        SceneNames.Ruins1_18, // Spire Bench
+        SceneNames.Ruins1_27, // Fountain
+        SceneNames.Ruins1_29, // City Storerooms Stag
+        SceneNames.Ruins1_05b, // Lemm
+        SceneNames.Ruins2_Watcher_Room, // Lurien
+        SceneNames.Ruins2_08, // King's Station Stag
+        SceneNames.Ruins2_10, // King's Elevator
+        SceneNames.Ruins2_10b, // King's Elevator
         SceneNames.Town,
-        SceneNames.Waterways_03,  // Tuk
-        SceneNames.Waterways_15,  // Dung Defender relic
+        SceneNames.Waterways_03, // Tuk
+        SceneNames.Waterways_15, // Dung Defender relic
     ];
 
     private static bool IsValidRevekScene()
     {
         var gm = GameManager.instance;
-        if (!gm.IsGameplayScene() || gm.IsCinematicScene()) return false;
+        if (!gm.IsGameplayScene() || gm.IsCinematicScene())
+            return false;
 
         var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-        if (scene.StartsWith("Dream_")) return false;
-        if (scene.StartsWith("GG_") && scene != SceneNames.GG_Pipeway && scene != SceneNames.GG_Waterways) return false;
-        if (scene.StartsWith("White_Palace_")) return false;
+        if (scene.StartsWith("Dream_"))
+            return false;
+        if (
+            scene.StartsWith("GG_")
+            && scene != SceneNames.GG_Pipeway
+            && scene != SceneNames.GG_Waterways
+        )
+            return false;
+        if (scene.StartsWith("White_Palace_"))
+            return false;
 
         return !INVALID_REVEK_SCENES.Contains(scene);
     }
 
     private void Update()
     {
-        heroLightRenderer ??= HeroController.instance?.gameObject.FindChild("HeroLight")?.GetComponent<SpriteRenderer>();
-        leakParticles ??= HeroController.instance?.gameObject.FindChild("Low Health Leak")?.GetComponent<ParticleSystem>();
+        heroLightRenderer ??= HeroController
+            .instance?.gameObject.FindChild("HeroLight")
+            ?.GetComponent<SpriteRenderer>();
+        leakParticles ??= HeroController
+            .instance?.gameObject.FindChild("Low Health Leak")
+            ?.GetComponent<ParticleSystem>();
 
         if (curseActive && (HeroController.instance?.acceptingInput ?? false))
         {
@@ -338,20 +379,29 @@ internal class CurseEffects : MonoBehaviour
                 soulDrain -= taken;
             }
 
-            if (revek == null && IsValidRevekScene() && module!.Settings.CurseOfTheDamned && timeCursed >= initialRevekWait && timeInScene >= sceneRevekWait) revek = CurseOfTheDamned.SpawnRevek(module);
+            if (
+                revek == null
+                && IsValidRevekScene()
+                && module!.Settings.CurseOfTheDamned
+                && timeCursed >= initialRevekWait
+                && timeInScene >= sceneRevekWait
+            )
+                revek = CurseOfTheDamned.SpawnRevek(module);
         }
 
         if (curseActive)
         {
             activeTime += Time.deltaTime;
-            if (activeTime > HERO_LIGHT_BLEND) activeTime = HERO_LIGHT_BLEND;
+            if (activeTime > HERO_LIGHT_BLEND)
+                activeTime = HERO_LIGHT_BLEND;
 
             EnableLeakParticles(true);
         }
         else if (activeTime > 0)
         {
             activeTime -= Time.deltaTime;
-            if (activeTime <= 0) activeTime = 0;
+            if (activeTime <= 0)
+                activeTime = 0;
         }
     }
 
@@ -360,7 +410,12 @@ internal class CurseEffects : MonoBehaviour
         if (heroLightRenderer != null)
         {
             var pct = activeTime / HERO_LIGHT_BLEND;
-            heroLightRenderer.color = InterpColor(SceneColor, pct, CURSED_HERO_LIGHT_COLOR, SceneColor.a);
+            heroLightRenderer.color = InterpColor(
+                SceneColor,
+                pct,
+                CURSED_HERO_LIGHT_COLOR,
+                SceneColor.a
+            );
         }
     }
 }

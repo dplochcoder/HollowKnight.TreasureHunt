@@ -1,8 +1,8 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using HutongGames.PlayMaker;
 using TMPro;
 using UnityEngine;
-using HutongGames.PlayMaker;
-using System.Collections.Generic;
 
 namespace TreasureHunt.Util;
 
@@ -15,20 +15,26 @@ internal record DialogueOptions
 // Largely copied from ItemChanger.DialogueCenter, with some changes.
 internal static class DialogueUtil
 {
-    private static GameObject DialogueManager => FsmVariables.GlobalVariables.FindFsmGameObject("DialogueManager").Value;
+    private static GameObject DialogueManager =>
+        FsmVariables.GlobalVariables.FindFsmGameObject("DialogueManager").Value;
     private static PlayMakerFSM BoxOpenFsm => DialogueManager.LocateMyFSM("Box Open");
-    private static GameObject DialogueText => FsmVariables.GlobalVariables.FindFsmGameObject("DialogueText").Value;
+    private static GameObject DialogueText =>
+        FsmVariables.GlobalVariables.FindFsmGameObject("DialogueText").Value;
 
     private static DialogueBox DialogueBox => DialogueText.GetComponent<DialogueBox>();
 
-    internal static Coroutine StartCoroutine(IEnumerator iter) => HeroController.instance.StartCoroutine(iter);
+    internal static Coroutine StartCoroutine(IEnumerator iter) =>
+        HeroController.instance.StartCoroutine(iter);
 
     private static IEnumerator ShowTextsImpl(List<string> texts, DialogueOptions opts)
     {
         BoxOpenFsm.Fsm.Event(opts.dream ? "BOX UP DREAM" : "BOX UP");
         yield return new WaitForSeconds(0.15f); // orig: 0.3f
 
-        DialogueText.LocateMyFSM("Dialogue Page Control").FsmVariables.GetFsmGameObject("Requester").Value = null;
+        DialogueText
+            .LocateMyFSM("Dialogue Page Control")
+            .FsmVariables.GetFsmGameObject("Requester")
+            .Value = null;
         DialogueText.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.Top;
 
         convoEnded = false;
@@ -47,7 +53,8 @@ internal static class DialogueUtil
         DialogueText.GetComponent<TextMeshPro>().alignment = TextAlignmentOptions.TopLeft;
     }
 
-    internal static YieldInstruction ShowTexts(List<string> texts, DialogueOptions? opts = null) => StartCoroutine(ShowTextsImpl(texts, opts ?? new()));
+    internal static YieldInstruction ShowTexts(List<string> texts, DialogueOptions? opts = null) =>
+        StartCoroutine(ShowTextsImpl(texts, opts ?? new()));
 
     internal static void Hook() => On.DialogueBox.HideText += OnHideText;
 
@@ -60,5 +67,6 @@ internal static class DialogueUtil
     }
 
     static bool ConvoEnded() => convoEnded;
+
     static bool convoEnded = false;
 }

@@ -1,9 +1,9 @@
-﻿using ItemChanger;
+﻿using System;
+using System.Collections.Generic;
+using ItemChanger;
 using MagicUI.Core;
 using MagicUI.Elements;
 using RandomizerMod.IC;
-using System;
-using System.Collections.Generic;
 using TreasureHunt.IC;
 using UnityEngine;
 
@@ -21,7 +21,8 @@ internal class TrackerUI
     {
         layout = new(true, "Treasure Hunt Tracker")
         {
-            VisibilityCondition = () => !TreasureHuntMod.GS.ShowPauseOnly || (GameManager.instance?.isPaused ?? false)
+            VisibilityCondition = () =>
+                !TreasureHuntMod.GS.ShowPauseOnly || (GameManager.instance?.isPaused ?? false),
         };
 
         StackLayout bigStack = new(layout, "Grid with Label")
@@ -31,13 +32,15 @@ internal class TrackerUI
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Center,
         };
-        bigStack.Children.Add(new TextObject(layout, "Grid Label")
-        {
-            Text = "Treasure Hunt Targets",
-            FontSize = 20,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-        });
+        bigStack.Children.Add(
+            new TextObject(layout, "Grid Label")
+            {
+                Text = "Treasure Hunt Targets",
+                FontSize = 20,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            }
+        );
 
         StackLayout smallStack = new(layout, "Targets")
         {
@@ -97,7 +100,8 @@ internal class TrackerUI
         foreach (var item in placement.Items)
         {
             var randoTag = item.GetTag<RandoItemTag>();
-            if (randoTag == null || randoTag.id != id) continue;
+            if (randoTag == null || randoTag.id != id)
+                continue;
 
             return item.GetTag<CostTag>()?.Cost;
         }
@@ -107,11 +111,19 @@ internal class TrackerUI
 
     internal static string Clean(string name) => name.Replace("_", " ").Replace("-", " ");
 
-    private static string MinifyCostText(string txt) => txt.Replace("Once you own ", "Requires ").Replace(" charms, I'll gladly sell it to you.", " charms");
+    private static string MinifyCostText(string txt) =>
+        txt.Replace("Once you own ", "Requires ")
+            .Replace(" charms, I'll gladly sell it to you.", " charms");
 
-    private string ComputePlacementString(AbstractPlacement placement, int idx, DisplayData displayData, Dictionary<int, VisitState>? visitOverrides = null)
+    private string ComputePlacementString(
+        AbstractPlacement placement,
+        int idx,
+        DisplayData displayData,
+        Dictionary<int, VisitState>? visitOverrides = null
+    )
     {
-        void UpdateAction(VisitStateChangedEventArgs args) => Update(displayData, new() { [idx] = args.NewFlags });
+        void UpdateAction(VisitStateChangedEventArgs args) =>
+            Update(displayData, new() { [idx] = args.NewFlags });
         listeners.Add((placement, UpdateAction));
         placement.OnVisitStateChanged += UpdateAction;
 
@@ -119,7 +131,8 @@ internal class TrackerUI
         string costTxt = "";
         if (cost != null)
         {
-            if (visitOverrides == null || !visitOverrides.TryGetValue(idx, out var visitState)) visitState = placement.Visited;
+            if (visitOverrides == null || !visitOverrides.TryGetValue(idx, out var visitState))
+                visitState = placement.Visited;
             var previewed = (visitState & VisitState.Previewed) == VisitState.Previewed;
 
             var innerTxt = previewed ? MinifyCostText(cost.GetCostText()) : "???";
@@ -129,7 +142,10 @@ internal class TrackerUI
         return $"{Clean(placement.Name)}{costTxt}";
     }
 
-    internal void Update(DisplayData displayData, Dictionary<int, VisitState>? visitOverrides = null)
+    internal void Update(
+        DisplayData displayData,
+        Dictionary<int, VisitState>? visitOverrides = null
+    )
     {
         listeners.ForEach(pair =>
         {
@@ -142,30 +158,42 @@ internal class TrackerUI
         foreach (var p in ItemChanger.Internal.Ref.Settings.GetPlacements())
         {
             var tag = p.GetTag<RandoPlacementTag>();
-            if (tag == null) continue;
+            if (tag == null)
+                continue;
 
-            foreach (var id in tag.ids) placements[id] = p;
+            foreach (var id in tag.ids)
+                placements[id] = p;
         }
 
         List<string> displayStrings = [];
         foreach (var idx in displayData.treasures)
         {
-            if (placements.TryGetValue(idx, out var placement)) displayStrings.Add(ComputePlacementString(placement, idx, displayData, visitOverrides));
-            else displayStrings.Add("??? Unknown Location ???");
+            if (placements.TryGetValue(idx, out var placement))
+                displayStrings.Add(
+                    ComputePlacementString(placement, idx, displayData, visitOverrides)
+                );
+            else
+                displayStrings.Add("??? Unknown Location ???");
         }
         displayStrings.Add($"Treasure Remaining: {displayData.treasuresRemaining}");
 
-        for (int i = 0; i < targets.Count; i++) targets[i].Text = i < displayStrings.Count ? displayStrings[i] : "";
+        for (int i = 0; i < targets.Count; i++)
+            targets[i].Text = i < displayStrings.Count ? displayStrings[i] : "";
 
         List<string> cursedStrings = [];
         foreach (var idx in displayData.cursed)
         {
-            if (placements.TryGetValue(idx, out var placement)) cursedStrings.Add(ComputePlacementString(placement, idx, displayData, visitOverrides));
-            else cursedStrings.Add("??? Unknown Location ???");
+            if (placements.TryGetValue(idx, out var placement))
+                cursedStrings.Add(
+                    ComputePlacementString(placement, idx, displayData, visitOverrides)
+                );
+            else
+                cursedStrings.Add("??? Unknown Location ???");
         }
 
         cursedHeader.Text = cursedStrings.Count > 0 ? "CURSED" : "";
-        for (int i = 0; i < cursedTargets.Count; i++) cursedTargets[i].Text = i < cursedStrings.Count ? cursedStrings[i] : "";
+        for (int i = 0; i < cursedTargets.Count; i++)
+            cursedTargets[i].Text = i < cursedStrings.Count ? cursedStrings[i] : "";
     }
 
     internal void Destroy() => layout.Destroy();

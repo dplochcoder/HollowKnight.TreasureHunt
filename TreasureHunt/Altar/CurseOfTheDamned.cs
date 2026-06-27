@@ -1,7 +1,7 @@
-﻿using HutongGames.PlayMaker.Actions;
+﻿using System.Collections.Generic;
+using HutongGames.PlayMaker.Actions;
 using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
-using System.Collections.Generic;
 using TreasureHunt.IC;
 using UnityEngine;
 
@@ -39,26 +39,35 @@ internal class CurseOfTheDamned : MonoBehaviour, IHitResponder
         furyParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
         revek.SetActive(true);
-        revek.FindChild("Slash Hit").LocateMyFSM("damages_hero").FsmVariables.GetFsmInt("damageDealt").Value = rituals + 1;
+        revek
+            .FindChild("Slash Hit")
+            .LocateMyFSM("damages_hero")
+            .FsmVariables.GetFsmInt("damageDealt")
+            .Value = rituals + 1;
 
         var fsm = revek.LocateMyFSM("Control");
         fsm.Fsm.GlobalTransitions = [];
         fsm.FsmVariables.GetFsmFloat("Speed").Value = 180f + 10 * rituals;
-        foreach (var state in fsm.FsmStates) state.RemoveTransitionsOn("TAKE DAMAGE");
+        foreach (var state in fsm.FsmStates)
+            state.RemoveTransitionsOn("TAKE DAMAGE");
 
         var gcp = fsm.GetState("Ghost Check Pause");
         gcp.ClearTransitions();
         gcp.AddTransition("FINISHED", "Set Angle");
 
-        fsm.GetState("Set Angle").AddFirstAction(new Lambda(() =>
-        {
-            if (!module.IsCurseActive()) Destroy(revek);
-            else
-            {
-                redFlash.SetActive(true);
-                furyParticles.Play();
-            }
-        }));
+        fsm.GetState("Set Angle")
+            .AddFirstAction(
+                new Lambda(() =>
+                {
+                    if (!module.IsCurseActive())
+                        Destroy(revek);
+                    else
+                    {
+                        redFlash.SetActive(true);
+                        furyParticles.Play();
+                    }
+                })
+            );
 
         // Set position first for proper SFX.
         var teleIn = fsm.GetState("Slash Tele In");
@@ -76,7 +85,9 @@ internal class CurseOfTheDamned : MonoBehaviour, IHitResponder
         audio.pitchMax.Value = 0.8f;
 
         var attackPause = fsm.GetState("Attack Pause");
-        attackPause.AddFirstAction(new Lambda(() => furyParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting)));
+        attackPause.AddFirstAction(
+            new Lambda(() => furyParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting))
+        );
         wait = attackPause.GetFirstActionOfType<WaitRandom>();
         wait.timeMin.Value = Mathf.Max(1.5f * Mathf.Pow(0.9f, rituals), 0.5f);
         wait.timeMax.Value = Mathf.Max(2f * Mathf.Pow(0.9f, rituals), 1f);
@@ -85,14 +96,16 @@ internal class CurseOfTheDamned : MonoBehaviour, IHitResponder
         List<float> increase = [0];
         var damagedPause = fsm.GetState("Damaged Pause");
         var damagedWait = damagedPause.GetFirstActionOfType<WaitRandom>();
-        damagedPause.AddFirstAction(new Lambda(() =>
-        {
-            furyParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        damagedPause.AddFirstAction(
+            new Lambda(() =>
+            {
+                furyParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
 
-            damagedWait.timeMin.Value = 4.5f + increase[0];
-            damagedWait.timeMax.Value = 5.5f + increase[0];
-            increase[0] += Mathf.Pow(0.85f, rituals);
-        }));
+                damagedWait.timeMin.Value = 4.5f + increase[0];
+                damagedWait.timeMax.Value = 5.5f + increase[0];
+                increase[0] += Mathf.Pow(0.85f, rituals);
+            })
+        );
 
         var hit = fsm.GetState("Hit").GetFirstActionOfType<AudioPlayerOneShot>();
         hit.pitchMin.Value = 0.6f;
@@ -103,7 +116,9 @@ internal class CurseOfTheDamned : MonoBehaviour, IHitResponder
 
     private static GameObject MakeFuryWaves()
     {
-        var furyWaves = Instantiate(HeroController.instance.gameObject.FindChild("Charm Effects")!.FindChild("Fury")!);
+        var furyWaves = Instantiate(
+            HeroController.instance.gameObject.FindChild("Charm Effects")!.FindChild("Fury")!
+        );
         furyWaves.transform.localScale = new(1.8f, 1.8f, 1.8f);
 
         var system = furyWaves.GetComponent<ParticleSystem>();
@@ -140,12 +155,19 @@ internal class CurseOfTheDamned : MonoBehaviour, IHitResponder
         renderer!.sortingOrder = 1;
     }
 
-    private static readonly HashSet<string> VULNERABLE_STATES = ["Slash Idle", "Slash Antic", "Slash"];
+    private static readonly HashSet<string> VULNERABLE_STATES =
+    [
+        "Slash Idle",
+        "Slash Antic",
+        "Slash",
+    ];
 
     public void Hit(HitInstance damageInstance)
     {
-        if (damageInstance.DamageDealt <= 0) return;
-        if (control == null || !VULNERABLE_STATES.Contains(control.ActiveStateName)) return;
+        if (damageInstance.DamageDealt <= 0)
+            return;
+        if (control == null || !VULNERABLE_STATES.Contains(control.ActiveStateName))
+            return;
 
         switch (damageInstance.AttackType)
         {

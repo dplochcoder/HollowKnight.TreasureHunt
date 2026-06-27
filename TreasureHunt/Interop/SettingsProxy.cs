@@ -6,11 +6,15 @@ namespace TreasureHunt.Interop;
 
 internal class SettingsProxy : RandoSettingsProxy<RandomizationSettings, string>
 {
-    internal static void Setup() => RandoSettingsManager.RandoSettingsManagerMod.Instance.RegisterConnection(new SettingsProxy());
+    internal static void Setup() =>
+        RandoSettingsManager.RandoSettingsManagerMod.Instance.RegisterConnection(
+            new SettingsProxy()
+        );
 
     public override string ModKey => nameof(TreasureHuntMod);
 
-    public override VersioningPolicy<string> VersioningPolicy => new StrictModVersioningPolicy(TreasureHuntMod.Instance!);
+    public override VersioningPolicy<string> VersioningPolicy =>
+        new StrictModVersioningPolicy(TreasureHuntMod.Instance!);
 
     public override bool TryProvideSettings(out RandomizationSettings? settings)
     {
@@ -18,5 +22,6 @@ internal class SettingsProxy : RandoSettingsProxy<RandomizationSettings, string>
         return settings.Enabled;
     }
 
-    public override void ReceiveSettings(RandomizationSettings? settings) => ConnectionMenu.Instance!.ApplySettings(settings ?? new());
+    public override void ReceiveSettings(RandomizationSettings? settings) =>
+        ConnectionMenu.Instance!.ApplySettings(settings ?? new());
 }

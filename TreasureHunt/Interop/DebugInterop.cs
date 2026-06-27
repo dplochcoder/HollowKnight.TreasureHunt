@@ -21,7 +21,8 @@ internal static class DebugInterop
     [BindableMethod(name = "Advance Time", category = CATEGORY)]
     public static void AdvanceTime()
     {
-        if (!GetModule(out var mod)) return;
+        if (!GetModule(out var mod))
+            return;
 
         mod.GameTime += 60 * 60;
         Console.AddLine("Advanced clock by 1 hour.");
@@ -30,7 +31,8 @@ internal static class DebugInterop
     [BindableMethod(name = "Obtain Accessible Treasure", category = CATEGORY)]
     public static void ObtainAccessibleTreasures()
     {
-        if (!GetModule(out var mod)) return;
+        if (!GetModule(out var mod))
+            return;
 
         // Find if any of the visible treasures are accessible.
         var rs = RandomizerMod.RandomizerMod.RS;
@@ -48,14 +50,17 @@ internal static class DebugInterop
                     {
                         if (item.GetTag<RandoItemTag>() is RandoItemTag tag && tag.id == idx)
                         {
-                            item.Give(icPlacement, new()
-                            {
-                                Container = "TreasureHunt",
-                                FlingType = ItemChanger.FlingType.DirectDeposit,
-                                MessageType = ItemChanger.MessageType.Corner,
-                                Transform = null,
-                                Callback = null
-                            });
+                            item.Give(
+                                icPlacement,
+                                new()
+                                {
+                                    Container = "TreasureHunt",
+                                    FlingType = ItemChanger.FlingType.DirectDeposit,
+                                    MessageType = ItemChanger.MessageType.Corner,
+                                    Transform = null,
+                                    Callback = null,
+                                }
+                            );
                         }
                     }
                 }
@@ -68,7 +73,8 @@ internal static class DebugInterop
     [BindableMethod(name = "Grant Curse", category = CATEGORY)]
     public static void GrantCurse()
     {
-        if (!GetModule(out var mod) || mod.IsCurseActive()) return;
+        if (!GetModule(out var mod) || mod.IsCurseActive())
+            return;
 
         var ctx = RandomizerMod.RandomizerMod.RS.Context;
         for (int i = 0; i < ctx.itemPlacements.Count; i++)
@@ -87,7 +93,8 @@ internal static class DebugInterop
     [BindableMethod(name = "Remove Curse", category = CATEGORY)]
     public static void RemoveCurse()
     {
-        if (!GetModule(out var mod) || !mod.IsCurseActive()) return;
+        if (!GetModule(out var mod) || !mod.IsCurseActive())
+            return;
 
         mod.Curses.ForEach(c => c.CurseItems.Clear());
         mod.UpdateDisplayData();
@@ -97,7 +104,8 @@ internal static class DebugInterop
     [BindableMethod(name = "Reset Curse Count", category = CATEGORY)]
     public static void ResetCurseCount()
     {
-        if (!GetModule(out var mod)) return;
+        if (!GetModule(out var mod))
+            return;
 
         mod.Curses.Clear();
         mod.UpdateDisplayData();

@@ -10,8 +10,8 @@
     <Copyright>Copyright © dplochcoder 2025</Copyright>
     <Authors>dplochcoder</Authors>
     <NoWarn>7035</NoWarn>
-    <AssemblyVersion>1.7.1.0</AssemblyVersion>
-    <FileVersion>1.7.1.0</FileVersion>
+    <AssemblyVersion>1.7.2.0</AssemblyVersion>
+    <FileVersion>1.7.2.0</FileVersion>
     <Deterministic>false</Deterministic>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <LangVersion>latest</LangVersion>
@@ -24,23 +24,45 @@
     <RemoveDir Directories="$(ExportDir)/" />
     <MakeDir Directories="$(ExportDir)/" />
     <MakeDir Directories="$(ExportDir)/zip/" />
-    <MakeDir Condition="!Exists('$(HollowKnightRefs)/Mods/$(TargetName)/')" Directories="$(HollowKnightRefs)/Mods/$(TargetName)/" />
-    <Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(HollowKnightRefs)/Mods/$(TargetName)/" />
+    <MakeDir
+      Condition="!Exists('$(HollowKnightRefs)/Mods/$(TargetName)/')"
+      Directories="$(HollowKnightRefs)/Mods/$(TargetName)/"
+    />
+    <Copy
+      SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb"
+      DestinationFolder="$(HollowKnightRefs)/Mods/$(TargetName)/"
+    />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExportDir)/" />
-    <Copy SourceFiles="$(SolutionDir)/README.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ExportDir)/zip/" />
-    <ZipDirectory SourceDirectory="$(ExportDir)/zip/" DestinationFile="$(ExportDir)/$(TargetName).zip" />
+    <Copy
+      SourceFiles="$(SolutionDir)/README.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb"
+      DestinationFolder="$(ExportDir)/zip/"
+    />
+    <ZipDirectory
+      SourceDirectory="$(ExportDir)/zip/"
+      DestinationFile="$(ExportDir)/$(TargetName).zip"
+    />
     <RemoveDir Directories="$(ExportDir)/zip/" />
     <GetFileHash Files="$(ExportDir)/$(TargetName).zip" Algorithm="SHA256">
       <Output TaskParameter="Items" ItemName="FilesWithHashes" />
     </GetFileHash>
-    <WriteLinesToFile File="$(ExportDir)/SHA.txt" Lines="@(FilesWithHashes->'%(FileHash)')" Overwrite="true" Encoding="UTF-8" />
+    <WriteLinesToFile
+      File="$(ExportDir)/SHA.txt"
+      Lines="@(FilesWithHashes->'%(FileHash)')"
+      Overwrite="true"
+      Encoding="UTF-8"
+    />
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
       <Output TaskParameter="Assemblies" ItemName="Targets" />
     </GetAssemblyIdentity>
     <ItemGroup>
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
-    <WriteLinesToFile File="$(ExportDir)/VERSION.txt" Lines="@(VersionNumber)" Overwrite="true" Encoding="UTF-8" />
+    <WriteLinesToFile
+      File="$(ExportDir)/VERSION.txt"
+      Lines="@(VersionNumber)"
+      Overwrite="true"
+      Encoding="UTF-8"
+    />
   </Target>
   <ItemGroup>
     <None Include=".gitignore" />

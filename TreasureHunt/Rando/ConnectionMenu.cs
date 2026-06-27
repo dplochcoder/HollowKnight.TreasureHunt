@@ -1,12 +1,12 @@
-﻿using MenuChanger;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using MenuChanger;
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
 using RandomizerMod.Menu;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 namespace TreasureHunt.Rando;
@@ -34,9 +34,19 @@ internal class ConnectionMenu
     private readonly List<ILockable> lockables = [];
     private readonly List<ILockable> altarLockables = [];
 
-    private static IValueElement[] FieldsWithAttr<T>(MenuElementFactory<RandomizationSettings> factory) where T : Attribute => [.. factory.ElementLookup
-        .Where(e => typeof(RandomizationSettings).GetField(e.Key, BindingFlags.Public | BindingFlags.Instance).GetCustomAttribute<T>() != null)
-        .Select(e => e.Value)];
+    private static IValueElement[] FieldsWithAttr<T>(
+        MenuElementFactory<RandomizationSettings> factory
+    )
+        where T : Attribute =>
+        [
+            .. factory
+                .ElementLookup.Where(e =>
+                    typeof(RandomizationSettings)
+                        .GetField(e.Key, BindingFlags.Public | BindingFlags.Instance)
+                        .GetCustomAttribute<T>() != null
+                )
+                .Select(e => e.Value),
+        ];
 
     private ConnectionMenu(MenuPage landingPage)
     {
@@ -45,19 +55,30 @@ internal class ConnectionMenu
         entryButton.AddHideAndShowEvent(mainPage);
 
         factory = new(mainPage, TreasureHuntMod.GS.RS);
-        var enabled = (factory.ElementLookup[nameof(RandomizationSettings.Enabled)] as MenuItem<bool>)!;
+        var enabled = (
+            factory.ElementLookup[nameof(RandomizationSettings.Enabled)] as MenuItem<bool>
+        )!;
         enabled.SelfChanged += _ => SetLocksAndColor();
 
-        var altar = (factory.ElementLookup[nameof(RandomizationSettings.AltarOfDivination)] as MenuItem<bool>)!;
+        var altar = (
+            factory.ElementLookup[nameof(RandomizationSettings.AltarOfDivination)] as MenuItem<bool>
+        )!;
         altar.SelfChanged += _ => SetLocksAndColor();
 
         foreach (var e in factory.ElementLookup)
         {
-            if (e.Key == nameof(RandomizationSettings.Enabled)) continue;
+            if (e.Key == nameof(RandomizationSettings.Enabled))
+                continue;
             if (e.Value is ILockable l)
             {
-                if (typeof(RandomizationSettings).GetField(e.Key, BindingFlags.Public | BindingFlags.Instance).GetCustomAttribute<AltarFieldAttribute>() != null) altarLockables.Add(l);
-                else lockables.Add(l);
+                if (
+                    typeof(RandomizationSettings)
+                        .GetField(e.Key, BindingFlags.Public | BindingFlags.Instance)
+                        .GetCustomAttribute<AltarFieldAttribute>() != null
+                )
+                    altarLockables.Add(l);
+                else
+                    lockables.Add(l);
             }
         }
 
@@ -65,10 +86,43 @@ internal class ConnectionMenu
         var controlsFields = FieldsWithAttr<ControlsFieldAttribute>(factory);
         var altarFields = FieldsWithAttr<AltarFieldAttribute>(factory);
 
-        GridItemPanel pools = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 4, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, poolFields);
-        List<GridItemPanel> controlsPanels = [.. controlsFields.Select(f => new GridItemPanel(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 1, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, f))];
-        GridItemPanel altarControls = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 3, SpaceParameters.VSPACE_SMALL, SpaceParameters.HSPACE_SMALL, false, altarFields);
-        VerticalItemPanel main = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, SpaceParameters.VSPACE_MEDIUM, true, [enabled, pools, .. controlsPanels, altar, altarControls]);
+        GridItemPanel pools = new(
+            mainPage,
+            SpaceParameters.TOP_CENTER_UNDER_TITLE,
+            4,
+            SpaceParameters.VSPACE_SMALL,
+            SpaceParameters.HSPACE_SMALL,
+            false,
+            poolFields
+        );
+        List<GridItemPanel> controlsPanels =
+        [
+            .. controlsFields.Select(f => new GridItemPanel(
+                mainPage,
+                SpaceParameters.TOP_CENTER_UNDER_TITLE,
+                1,
+                SpaceParameters.VSPACE_SMALL,
+                SpaceParameters.HSPACE_SMALL,
+                false,
+                f
+            )),
+        ];
+        GridItemPanel altarControls = new(
+            mainPage,
+            SpaceParameters.TOP_CENTER_UNDER_TITLE,
+            3,
+            SpaceParameters.VSPACE_SMALL,
+            SpaceParameters.HSPACE_SMALL,
+            false,
+            altarFields
+        );
+        VerticalItemPanel main = new(
+            mainPage,
+            SpaceParameters.TOP_CENTER_UNDER_TITLE,
+            SpaceParameters.VSPACE_MEDIUM,
+            true,
+            [enabled, pools, .. controlsPanels, altar, altarControls]
+        );
         main.Reposition();
 
         Vector2 offset = new(0, -SpaceParameters.VSPACE_MEDIUM);
@@ -85,17 +139,23 @@ internal class ConnectionMenu
     {
         var enabled = TreasureHuntMod.GS.IsEnabled;
         var altar = TreasureHuntMod.GS.RS.AltarOfDivination;
-        entryButton.Text.color = TreasureHuntMod.GS.IsEnabled ? Colors.TRUE_COLOR : Colors.DEFAULT_COLOR;
+        entryButton.Text.color = TreasureHuntMod.GS.IsEnabled
+            ? Colors.TRUE_COLOR
+            : Colors.DEFAULT_COLOR;
 
         foreach (var lockable in lockables)
         {
-            if (enabled) lockable.Unlock();
-            else lockable.Lock();
+            if (enabled)
+                lockable.Unlock();
+            else
+                lockable.Lock();
         }
         foreach (var lockable in altarLockables)
         {
-            if (enabled && altar) lockable.Unlock();
-            else lockable.Lock();
+            if (enabled && altar)
+                lockable.Unlock();
+            else
+                lockable.Lock();
         }
     }
 }

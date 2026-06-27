@@ -1,11 +1,11 @@
-﻿using HutongGames.PlayMaker.Actions;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using HutongGames.PlayMaker.Actions;
 using ItemChanger;
 using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
 using ItemChanger.Util;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using TreasureHunt.IC;
 using TreasureHunt.Util;
 using UnityEngine;
@@ -25,7 +25,8 @@ internal class AltarOfDivination
 
         tablet.transform.position = new(33.5f, 5.7f, 2.5f);
         tablet.SetActive(true);
-        foreach (Transform child in tablet.transform) child.gameObject.SetActive(false);
+        foreach (Transform child in tablet.transform)
+            child.gameObject.SetActive(false);
 
         GameObject sprite = new("AltarSprite");
         sprite.transform.SetParent(tablet.transform);
@@ -65,16 +66,19 @@ internal class AltarOfDivination
             promptUp.Actions[0],
             promptUp.Actions[1],
             promptUp.Actions[3],
-            new AsyncLambda(cb => PerformRitual(fsm.gameObject, cb), RITUAL_END));
+            new AsyncLambda(cb => PerformRitual(fsm.gameObject, cb), RITUAL_END)
+        );
 
         var setBool = fsm.GetState("Set Bool");
         var turnBack = fsm.GetState("Turn Back");
         promptUp.ClearTransitions();
         promptUp.AddTransition(RITUAL_END, turnBack);
-        foreach (var t in setBool.Transitions) t.SetToState(turnBack);
+        foreach (var t in setBool.Transitions)
+            t.SetToState(turnBack);
     }
 
-    internal static void QueueDirectDamage(int damage) => HeroController.instance.StartCoroutine(DealDirectDamage(damage));
+    internal static void QueueDirectDamage(int damage) =>
+        HeroController.instance.StartCoroutine(DealDirectDamage(damage));
 
     private static IEnumerator DealDirectDamage(int damage)
     {
@@ -93,9 +97,12 @@ internal class AltarOfDivination
         {
             int minutes = Mathf.FloorToInt(secs / 60);
             int seconds = Mathf.FloorToInt(secs % 60);
-            if (minutes > 0 && seconds > 0) return $"{minutes} minutes and {seconds} seconds";
-            else if (minutes > 0) return $"{minutes} minutes";
-            else return $"{(seconds > 0 ? seconds : 1)} seconds";
+            if (minutes > 0 && seconds > 0)
+                return $"{minutes} minutes and {seconds} seconds";
+            else if (minutes > 0)
+                return $"{minutes} minutes";
+            else
+                return $"{(seconds > 0 ? seconds : 1)} seconds";
         }
     }
 
@@ -105,8 +112,10 @@ internal class AltarOfDivination
     private static bool XeroActive()
     {
         var warrior = GameObject.Find("Warrior");
-        if (warrior == null) return false;
-        if (warrior.transform.childCount == 0) return false;
+        if (warrior == null)
+            return false;
+        if (warrior.transform.childCount == 0)
+            return false;
 
         return warrior.transform.GetChild(0).gameObject.activeSelf;
     }
@@ -124,7 +133,9 @@ internal class AltarOfDivination
 
     private static AudioSource PlayRumble(GameObject src)
     {
-        var clip = TreasureHuntPreloader.Instance.GrimmArrivalAudio!.GetComponent<AudioSource>().clip;
+        var clip = TreasureHuntPreloader
+            .Instance.GrimmArrivalAudio!.GetComponent<AudioSource>()
+            .clip;
 
         GameObject audioObj = new("AudioSrc");
         audioObj.transform.position = src.transform.position;
@@ -139,7 +150,9 @@ internal class AltarOfDivination
     {
         if (XeroActive())
         {
-            yield return DialogueUtil.ShowTexts(["...are you serious? Now, with this riff-raff?<br>Finish what you started, we cannot divine with this noise."]);
+            yield return DialogueUtil.ShowTexts([
+                "...are you serious? Now, with this riff-raff?<br>Finish what you started, we cannot divine with this noise.",
+            ]);
             QueueDirectDamage(2);
             yield break;
         }
@@ -147,7 +160,12 @@ internal class AltarOfDivination
         var mod = ItemChangerMod.Modules.Get<TreasureHuntModule>()!;
         if (mod.IsCurseActive())
         {
-            yield return DialogueUtil.ShowTexts(["There is no escape. This is the price you must pay.<br>You'd best move along now. Quickly."], new() { useTypewriter = false });
+            yield return DialogueUtil.ShowTexts(
+                [
+                    "There is no escape. This is the price you must pay.<br>You'd best move along now. Quickly.",
+                ],
+                new() { useTypewriter = false }
+            );
             QueueDirectDamage(1);
             yield break;
         }
@@ -155,7 +173,10 @@ internal class AltarOfDivination
         // Check completion.
         if (mod.Finished())
         {
-            yield return DialogueUtil.ShowTexts(["The spirits of the altar sleep."], new() { useTypewriter = false, dream = false });
+            yield return DialogueUtil.ShowTexts(
+                ["The spirits of the altar sleep."],
+                new() { useTypewriter = false, dream = false }
+            );
             yield break;
         }
 
@@ -164,13 +185,17 @@ internal class AltarOfDivination
         {
             if (mod.CompletedRituals() == 0 && mod.GameTime < SINCE_BEGINNING)
             {
-                yield return DialogueUtil.ShowTexts([$"Impatient vessel, we are not ready. Go, explore, collect.<br><br>Return to bargain in {ShowTime(SINCE_BEGINNING - mod.GameTime)}."]);
+                yield return DialogueUtil.ShowTexts([
+                    $"Impatient vessel, we are not ready. Go, explore, collect.<br><br>Return to bargain in {ShowTime(SINCE_BEGINNING - mod.GameTime)}.",
+                ]);
                 yield break;
             }
             if (mod.CompletedRituals() > 0 && mod.GameTime < mod.LastLiftedCurse + SINCE_LAST)
             {
                 var wait = mod.LastLiftedCurse + SINCE_LAST - mod.GameTime;
-                yield return DialogueUtil.ShowTexts([$"Tarnished one, you would return so soon? We will not be so kind next time.<br><br>Go, return in {ShowTime(wait)} if you must."]);
+                yield return DialogueUtil.ShowTexts([
+                    $"Tarnished one, you would return so soon? We will not be so kind next time.<br><br>Go, return in {ShowTime(wait)} if you must.",
+                ]);
                 yield break;
             }
         }
@@ -184,8 +209,10 @@ internal class AltarOfDivination
             PlayAngryVoice(src);
             yield return DialogueUtil.ShowTexts([
                 "Wretched!<br>Vile street ant!<br>Unspeakable!",
-                "It injects its blood with the forbidden nectar, we shall <b>not</b> abide it.<br><br>Begone, filth!"]);
-            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingBig").Value = false;
+                "It injects its blood with the forbidden nectar, we shall <b>not</b> abide it.<br><br>Begone, filth!",
+            ]);
+            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingBig").Value =
+                false;
             audio1.FadeOut(1f);
 
             QueueDirectDamage(2);
@@ -193,13 +220,18 @@ internal class AltarOfDivination
         }
         if (pd.GetInt(nameof(PlayerData.health)) < pd.GetInt(nameof(PlayerData.maxHealth)))
         {
-            yield return DialogueUtil.ShowTexts(["It is wounded, it lacks resolve.<br>Go, mend your wounds before your offering.", "And this one too."]);
+            yield return DialogueUtil.ShowTexts([
+                "It is wounded, it lacks resolve.<br>Go, mend your wounds before your offering.",
+                "And this one too.",
+            ]);
             QueueDirectDamage(1);
             yield break;
         }
         if (pd.GetBool(nameof(PlayerData.soulLimited)))
         {
-            yield return DialogueUtil.ShowTexts(["It leaks of regret, it is not whole.<br>The offering must leave nothing behind."]);
+            yield return DialogueUtil.ShowTexts([
+                "It leaks of regret, it is not whole.<br>The offering must leave nothing behind.",
+            ]);
             QueueDirectDamage(1);
             yield break;
         }
@@ -208,12 +240,15 @@ internal class AltarOfDivination
         var accessible = mod.GetArbitraryVisibleAccessibleTreasureName();
         if (accessible != null)
         {
-            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value = true;
+            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value =
+                true;
             PlayAngryVoice(src);
             yield return DialogueUtil.ShowTexts([
                 "Impatient, petulant, dishonorable.<br>Does it not know that with which it bargains?",
-                $"Vessel of blindness, seek the {accessible} before you seek us.<br>Cursed are thee who gaze beyond the veil."]);
-            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value = false;
+                $"Vessel of blindness, seek the {accessible} before you seek us.<br>Cursed are thee who gaze beyond the veil.",
+            ]);
+            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value =
+                false;
 
             QueueDirectDamage(2);
             yield break;
@@ -226,18 +261,23 @@ internal class AltarOfDivination
         if (pd.GetInt(nameof(PlayerData.geo)) < cost)
         {
             int missing = cost - pd.GetInt(nameof(PlayerData.geo));
-            yield return DialogueUtil.ShowTexts([$"Poor vessel, meager vessel. It arrives with spirit, but not enough.<br><br>Return with {missing} more geo and we might aid you still."]);
+            yield return DialogueUtil.ShowTexts([
+                $"Poor vessel, meager vessel. It arrives with spirit, but not enough.<br><br>Return with {missing} more geo and we might aid you still.",
+            ]);
             yield break;
         }
 
         SearchAlgorithm? algo = null;
         List<int>? cursedIndices = null;
-        if (TreasureHuntMod.CalculateExtensionCurses(out var extCursedIndices)) cursedIndices = extCursedIndices;
-        else algo = new(mod.GetVisibleTreasureIndices());
+        if (TreasureHuntMod.CalculateExtensionCurses(out var extCursedIndices))
+            cursedIndices = extCursedIndices;
+        else
+            algo = new(mod.GetVisibleTreasureIndices());
 
         yield return DialogueUtil.ShowTexts([
             "It arrives.<br>Whole, resolved, pure, and without recourse.<br>Its need is true and its tithings are grand.",
-            "We shall scour the world, that it might have purpose again."]);
+            "We shall scour the world, that it might have purpose again.",
+        ]);
 
         HeroController.instance.TakeGeo(cost);
         yield return new WaitForSeconds(1);
@@ -258,9 +298,16 @@ internal class AltarOfDivination
 
         if (cursedIndices.Count == 0)
         {
-            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value = true;
-            yield return DialogueUtil.ShowTexts(["...", "... ...", "Troubling. Your world is complex.", "You need more guidance than we can provide. Best keep searching."]);
-            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value = false;
+            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value =
+                true;
+            yield return DialogueUtil.ShowTexts([
+                "...",
+                "... ...",
+                "Troubling. Your world is complex.",
+                "You need more guidance than we can provide. Best keep searching.",
+            ]);
+            GameCameras.instance.cameraShakeFSM.FsmVariables.GetFsmBool("RumblingSmall").Value =
+                false;
             FlingGeoAction.SpawnGeo(cost - 257, true, FlingType.Everywhere, new(33.5f, 7.25f));
             yield break;
         }
@@ -285,7 +332,8 @@ internal class AltarOfDivination
         ritualResetAction = null;
 
         var pd = PlayerData.instance;
-        if (pd.GetString(nameof(pd.shadeScene)) != SceneNames.RestingGrounds_02) return;  // Cheater!
+        if (pd.GetString(nameof(pd.shadeScene)) != SceneNames.RestingGrounds_02)
+            return; // Cheater!
 
         pd.SetInt(nameof(pd.geo), geo);
         pd.SetInt(nameof(pd.geoPool), 0);
@@ -299,7 +347,8 @@ internal class AltarOfDivination
     internal static void MaybeRestoreShade()
     {
         var pd = PlayerData.instance;
-        if (pd.GetString(nameof(pd.shadeScene)) != SHADE_SCENE) return;
+        if (pd.GetString(nameof(pd.shadeScene)) != SHADE_SCENE)
+            return;
 
         pd.SetString(nameof(pd.shadeScene), SceneNames.RestingGrounds_02);
         pd.SetFloat(nameof(pd.shadePositionX), 33.5f);
@@ -312,7 +361,8 @@ internal class AltarOfDivination
         callback();
     }
 
-    private static void PerformRitual(GameObject src, Action callback) => DialogueUtil.StartCoroutine(PerformRitualImpl(src, callback));
+    private static void PerformRitual(GameObject src, Action callback) =>
+        DialogueUtil.StartCoroutine(PerformRitualImpl(src, callback));
 }
 
 internal static class AudioExtensions
