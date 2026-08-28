@@ -6,6 +6,7 @@ using MenuChanger;
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
+using PurenailCore.SystemUtil;
 using RandomizerMod.Menu;
 using UnityEngine;
 
@@ -133,10 +134,25 @@ internal class ConnectionMenu
         SetLocksAndColor();
     }
 
-    internal void ApplySettings(RandomizationSettings settings) => factory.SetMenuValues(settings);
+    internal void ApplySettings(RandomizationSettings settings)
+    {
+        lockables.ForEach(l => l.Unlock());
+        altarLockables.ForEach(l => l.Unlock());
+
+        ignoreChanges = true;
+        factory.SetMenuValues(settings);
+        ignoreChanges = false;
+
+        SetLocksAndColor();
+    }
+
+    private bool ignoreChanges = false;
 
     private void SetLocksAndColor()
     {
+        if (ignoreChanges)
+            return;
+
         var enabled = TreasureHuntMod.GS.IsEnabled;
         var altar = TreasureHuntMod.GS.RS.AltarOfDivination;
         entryButton.Text.color = TreasureHuntMod.GS.IsEnabled
