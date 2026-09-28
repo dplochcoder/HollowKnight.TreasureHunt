@@ -1,13 +1,13 @@
 ConnectionMetadataInjector
+DebugMod
 ItemChanger
+ItemSync
 MagicUI
 MenuChanger
-PurenailCore
+MultiWorldLib
+PurenailCore from https://github.com/dplochcoder/HollowKnight.PurenailCore/releases/download/v2.2.0.0/PurenailCore.zip
 RandomizerCore
 RandomizerCore.Json
 Randomizer 4
 RandoSettingsManager
-DebugMod
 SFCore
-ItemSync
-MultiWorldLib

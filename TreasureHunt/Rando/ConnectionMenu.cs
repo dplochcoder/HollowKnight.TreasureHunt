@@ -32,8 +32,8 @@ internal class ConnectionMenu
 
     private readonly SmallButton entryButton;
     private readonly MenuElementFactory<RandomizationSettings> factory;
-    private readonly List<ILockable> lockables = [];
-    private readonly List<ILockable> altarLockables = [];
+    private readonly List<IMenuElement> hideables = [];
+    private readonly List<IMenuElement> altarHideables = [];
 
     private static IValueElement[] FieldsWithAttr<T>(
         MenuElementFactory<RandomizationSettings> factory
@@ -49,37 +49,39 @@ internal class ConnectionMenu
                 .Select(e => e.Value),
         ];
 
+    private static RandomizationSettings Settings => TreasureHuntMod.GS.RS;
+
     private ConnectionMenu(MenuPage landingPage)
     {
         MenuPage mainPage = new("Treasure Hunt Main Page", landingPage);
         entryButton = new(landingPage, "Treasure Hunt");
         entryButton.AddHideAndShowEvent(mainPage);
 
-        factory = new(mainPage, TreasureHuntMod.GS.RS);
+        factory = new(mainPage, Settings);
         var enabled = (
             factory.ElementLookup[nameof(RandomizationSettings.Enabled)] as MenuItem<bool>
         )!;
-        enabled.SelfChanged += _ => SetLocksAndColor();
+        enabled.SelfChanged += _ => SetVisibilityAndColor();
 
         var altar = (
             factory.ElementLookup[nameof(RandomizationSettings.AltarOfDivination)] as MenuItem<bool>
         )!;
-        altar.SelfChanged += _ => SetLocksAndColor();
+        altar.SelfChanged += _ => SetVisibilityAndColor();
 
         foreach (var e in factory.ElementLookup)
         {
             if (e.Key == nameof(RandomizationSettings.Enabled))
                 continue;
-            if (e.Value is ILockable l)
+            if (e.Value is IMenuElement l)
             {
                 if (
                     typeof(RandomizationSettings)
                         .GetField(e.Key, BindingFlags.Public | BindingFlags.Instance)
                         .GetCustomAttribute<AltarFieldAttribute>() != null
                 )
-                    altarLockables.Add(l);
+                    altarHideables.Add(l);
                 else
-                    lockables.Add(l);
+                    hideables.Add(l);
             }
         }
 
@@ -131,47 +133,38 @@ internal class ConnectionMenu
         altar.Translate(offset);
         altarControls.Translate(offset);
 
-        SetLocksAndColor();
+        SetVisibilityAndColor();
     }
 
     internal void ApplySettings(RandomizationSettings settings)
     {
-        lockables.ForEach(l => l.Unlock());
-        altarLockables.ForEach(l => l.Unlock());
-
-        ignoreChanges = true;
+        Settings.CopyFrom(settings);
+        ;
         factory.SetMenuValues(settings);
-        ignoreChanges = false;
-
-        SetLocksAndColor();
+        SetVisibilityAndColor();
     }
 
-    private bool ignoreChanges = false;
-
-    private void SetLocksAndColor()
+    private void SetVisibilityAndColor()
     {
-        if (ignoreChanges)
-            return;
-
         var enabled = TreasureHuntMod.GS.IsEnabled;
         var altar = TreasureHuntMod.GS.RS.AltarOfDivination;
         entryButton.Text.color = TreasureHuntMod.GS.IsEnabled
             ? Colors.TRUE_COLOR
             : Colors.DEFAULT_COLOR;
 
-        foreach (var lockable in lockables)
+        foreach (var element in hideables)
         {
             if (enabled)
-                lockable.Unlock();
+                element.Show();
             else
-                lockable.Lock();
+                element.Hide();
         }
-        foreach (var lockable in altarLockables)
+        foreach (var element in altarHideables)
         {
             if (enabled && altar)
-                lockable.Unlock();
+                element.Show();
             else
-                lockable.Lock();
+                element.Hide();
         }
     }
 }

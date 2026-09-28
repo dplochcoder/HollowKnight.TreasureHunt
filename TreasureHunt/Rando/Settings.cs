@@ -4,8 +4,10 @@ using System.Linq;
 using ConnectionMetadataInjector;
 using ConnectionMetadataInjector.Util;
 using ItemChanger;
+using ItemChanger.Extensions;
 using MenuChanger.Attributes;
 using Newtonsoft.Json;
+using PurenailCore.SystemUtil;
 using RandomizerCore.Extensions;
 
 namespace TreasureHunt.Rando;
@@ -35,7 +37,7 @@ public enum TieBreakerOrder
     Random,
 }
 
-public class RandomizationSettings
+public class RandomizationSettings : Copyable<RandomizationSettings>
 {
     public const int MAX_REVEALS = 10;
     public const int MAX_CURSES = 7;
@@ -86,13 +88,12 @@ public class RandomizationSettings
         var strs = typeof(RandomizationSettings)
             .GetFields()
             .OrderBy(f => f.Name)
-            .Select(f => f.GetValue(this).ToString())
-            .ToList();
+            .Select(f => f.GetValue(this).ToString());
         return string.Join(",", strs).GetStableHashCode();
     }
 
-    private static readonly HashSet<string> TrueEndingItems =
-    [
+    private static readonly IReadOnlyCollection<string> TrueEndingItems = new HashSet<string>
+    {
         ItemNames.Dream_Nail,
         ItemNames.Dream_Gate,
         ItemNames.Awoken_Dream_Nail,
@@ -103,9 +104,9 @@ public class RandomizationSettings
         ItemNames.Queen_Fragment,
         ItemNames.King_Fragment,
         ItemNames.Void_Heart,
-    ];
-    private static readonly HashSet<string> MovementItems =
-    [
+    };
+    private static readonly IReadOnlyCollection<string> MovementItems = new HashSet<string>
+    {
         ItemNames.Left_Mothwing_Cloak,
         ItemNames.Right_Mothwing_Cloak,
         ItemNames.Split_Shade_Cloak,
@@ -118,49 +119,49 @@ public class RandomizationSettings
         ItemNames.Right_Crystal_Heart,
         ItemNames.Crystal_Heart,
         ItemNames.Monarch_Wings,
-    ];
-    private static readonly HashSet<string> SwimItems =
-    [
+    };
+    private static readonly IReadOnlyCollection<string> SwimItems = new HashSet<string>
+    {
         ItemNames.Swim,
         $"Not_{ItemNames.Swim}",
         ItemNames.Ismas_Tear,
         $"Not_{ItemNames.Ismas_Tear}",
-    ];
-    private static readonly HashSet<string> SpellItems =
-    [
+    };
+    private static readonly IReadOnlyCollection<string> SpellItems = new HashSet<string>
+    {
         ItemNames.Vengeful_Spirit,
         ItemNames.Shade_Soul,
         ItemNames.Desolate_Dive,
         ItemNames.Descending_Dark,
         ItemNames.Howling_Wraiths,
         ItemNames.Abyss_Shriek,
-    ];
-    private static readonly HashSet<string> MajorKeyItems =
-    [
+    };
+    private static readonly IReadOnlyCollection<string> MajorKeyItems = new HashSet<string>
+    {
         ItemNames.Elevator_Pass,
         ItemNames.Elegant_Key,
         ItemNames.Love_Key,
         ItemNames.Tram_Pass,
         ItemNames.Kings_Brand,
-    ];
-    private static readonly HashSet<string> KeyLikeCharmItems =
-    [
+    };
+    private static readonly IReadOnlyCollection<string> KeyLikeCharmItems = new HashSet<string>
+    {
         ItemNames.Grimmchild1,
         ItemNames.Grimmchild2,
         ItemNames.Spore_Shroom,
         ItemNames.Defenders_Crest,
-    ];
-    private static readonly HashSet<string> FragileCharmItems =
-    [
+    };
+    private static readonly IReadOnlyCollection<string> FragileCharmItems = new HashSet<string>
+    {
         ItemNames.Fragile_Greed,
         ItemNames.Unbreakable_Greed,
         ItemNames.Fragile_Heart,
         ItemNames.Unbreakable_Heart,
         ItemNames.Fragile_Strength,
         ItemNames.Unbreakable_Strength,
-    ];
+    };
 
-    private static readonly List<string> ItemPreferenceOrder =
+    private static readonly IReadOnlyList<string> ItemPreferenceOrder =
     [
         ItemNames.Left_Mothwing_Cloak,
         ItemNames.Right_Mothwing_Cloak,
@@ -245,18 +246,19 @@ public class RandomizationSettings
         "TreasureHuntGroup",
         _ => None
     );
-    private static readonly Dictionary<string, HashSet<string>> baseGroupSets = new()
-    {
-        [nameof(TrueEnding)] = TrueEndingItems,
-        [nameof(Movement)] = MovementItems,
-        [nameof(Spells)] = SpellItems,
-        [nameof(Swimming)] = SwimItems,
-        [nameof(MajorKeys)] = MajorKeyItems,
-        [nameof(KeyLikeCharms)] = KeyLikeCharmItems,
-        [nameof(FragileCharms)] = FragileCharmItems,
-    };
+    private static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> baseGroupSets =
+        new Dictionary<string, IReadOnlyCollection<string>>()
+        {
+            [nameof(TrueEnding)] = TrueEndingItems,
+            [nameof(Movement)] = MovementItems,
+            [nameof(Spells)] = SpellItems,
+            [nameof(Swimming)] = SwimItems,
+            [nameof(MajorKeys)] = MajorKeyItems,
+            [nameof(KeyLikeCharms)] = KeyLikeCharmItems,
+            [nameof(FragileCharms)] = FragileCharmItems,
+        };
 
-    private static Dictionary<string, string> BuildBaseGroups()
+    private static IReadOnlyDictionary<string, string> BuildBaseGroups()
     {
         Dictionary<string, string> ret = [];
         foreach (var e in baseGroupSets)
@@ -265,7 +267,7 @@ public class RandomizationSettings
         return ret;
     }
 
-    private static readonly Dictionary<string, string> baseGroups = BuildBaseGroups();
+    private static readonly IReadOnlyDictionary<string, string> baseGroups = BuildBaseGroups();
 
     private bool IsGroupEnabled(string name) =>
         name switch
@@ -291,6 +293,4 @@ public class RandomizationSettings
         else
             return MajorKeys && IsUniqueKey(item);
     }
-
-    public RandomizationSettings Clone() => (RandomizationSettings)MemberwiseClone();
 }
